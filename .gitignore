@@ -1,0 +1,6 @@
+my_tiny_gpt/outputs/
+my_tiny_gpt/*.pt
+my_tiny_gpt/**/*.pt
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

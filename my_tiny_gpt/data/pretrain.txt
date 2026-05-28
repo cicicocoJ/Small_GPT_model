@@ -1,0 +1,27 @@
+Once upon a time, there was a small village near a quiet river. The people in the village worked hard every day. Some people grew vegetables, some people made bread, and some people took care of animals.
+
+In the village, there was a young boy named Tom. Tom liked to ask questions. He wanted to know why the sky was blue, why birds could fly, and why the river never stopped moving. Every morning, he walked to the river and watched the water shine under the sun.
+
+One day, Tom found a little wooden box beside the river. The box was old, but it was clean. He opened it carefully and found a small notebook inside. On the first page, someone had written: "Learning begins with curiosity."
+
+Tom took the notebook home. That night, he wrote his first sentence: "Today I found a box, and I want to understand the world." From that day on, Tom wrote something every evening.
+
+His teacher saw the notebook and smiled. She said, "A person who keeps learning will always find new roads." Tom did not fully understand the sentence, but he liked the sound of it.
+
+Many years later, Tom became a teacher. He told his students that knowledge was not only in books. Knowledge could be found in rivers, trees, machines, stars, and questions. He always told them, "Do not be afraid to begin from zero."
+
+Another story begins in a small workshop. A girl named Anna wanted to build a simple robot. She had some wires, a small motor, a battery, and a few sensors. At first, the robot could not move. Then it moved backward. Then it turned in circles. Anna laughed and tried again.
+
+She learned that failure was part of the process. Every mistake gave her a new clue. After many tests, the little robot finally moved forward. It followed a black line on the floor and stopped when it saw an obstacle.
+
+Anna wrote in her notebook: "A system becomes intelligent when it can sense, decide, and act." Her teacher said this was a good beginning. Anna knew the robot was simple, but she also knew that every large project starts with a small step.
+
+In another city, a student studied artificial intelligence. He learned that a language model reads text and tries to predict the next word. If the sentence is "The sun rises in the", the model may predict "morning". If the sentence is "The cat drinks", the model may predict "milk".
+
+The student built a small GPT model. The model had token embeddings, position embeddings, attention layers, feed forward layers, and a final linear layer. At first, the model generated random text. After training, it began to learn simple patterns.
+
+The student understood that a large language model is not magic. It is a system built from data, mathematics, and computation. The model learns from many examples and improves by reducing prediction errors.
+
+This small experiment helped the student understand the basic process of building a language model. First, prepare text data. Second, convert text into tokens. Third, build the model. Fourth, train the model to predict the next token. Fifth, test the model by generating new text.
+
+The project was not perfect, but it was useful. The student learned that understanding the process is more important than making a very large model. A small model can still show the core ideas of modern language models.

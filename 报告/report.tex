@@ -1,0 +1,481 @@
+﻿\documentclass[UTF8,a4paper,zihao=-4,fontset=none]{ctexart}
+
+\usepackage[
+  top=35.0mm,
+  bottom=26.0mm,
+  left=30.0mm,
+  right=26.0mm,
+  headheight=26pt,
+  headsep=2.2mm,
+  footskip=6.0mm
+]{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{setspace}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{chngcntr}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\usepackage{url}
+\usepackage{float}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+\setmainfont[
+  Path=C:/Windows/Fonts/,
+  UprightFont=times.ttf,
+  BoldFont=timesbd.ttf,
+  ItalicFont=timesi.ttf,
+  BoldItalicFont=timesbi.ttf
+]{Times New Roman}
+\setCJKmainfont[
+  Path=C:/Windows/Fonts/,
+  UprightFont=simsun.ttc,
+  AutoFakeBold=2.0
+]{SimSun}
+\setCJKfamilyfont{simsun}[
+  Path=C:/Windows/Fonts/,
+  UprightFont=simsun.ttc,
+  AutoFakeBold=2.0
+]{SimSun}
+\setCJKfamilyfont{stxihei}[
+  Path=C:/Windows/Fonts/,
+  AutoFakeBold=2.2
+]{STXIHEI.TTF}
+\setCJKfamilyfont{stxinwei}[
+  Path=C:/Windows/Fonts/,
+  AutoFakeBold=2.0
+]{STXINWEI.TTF}
+\setCJKfamilyfont{simhei}[
+  Path=C:/Windows/Fonts/,
+  AutoFakeBold=2.0
+]{simhei.ttf}
+
+\newfontfamily\TimesNewRoman[
+  Path=C:/Windows/Fonts/,
+  UprightFont=times.ttf,
+  BoldFont=timesbd.ttf,
+  ItalicFont=timesi.ttf,
+  BoldItalicFont=timesbi.ttf
+]{Times New Roman}
+\newfontfamily\Tahoma[
+  Path=C:/Windows/Fonts/,
+  UprightFont=tahoma.ttf,
+  BoldFont=tahomabd.ttf
+]{Tahoma}
+
+% ===== 正文模板样式 =====
+\newcommand{\bodyfont}{\CJKfamily{simsun}\zihao{-4}\fontsize{12pt}{22pt}\selectfont}
+\newcommand{\examplefont}{\CJKfamily{simsun}\zihao{5}\fontsize{10.5pt}{22pt}\selectfont}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlist[enumerate]{itemsep=0pt,parsep=0pt,topsep=0pt,partopsep=0pt}
+
+\renewcommand{\thesection}{第\arabic{section}章}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+\titleformat{\section}
+  {\centering\CJKfamily{simhei}\bfseries\zihao{3}\fontsize{16pt}{24pt}\selectfont}
+  {\thesection}{1em}{}
+\titlespacing*{\section}{0pt}{12pt}{24pt}
+
+\titleformat{\subsection}
+  {\CJKfamily{simhei}\bfseries\zihao{4}\fontsize{14pt}{21pt}\selectfont}
+  {\thesubsection}{1em}{}
+\titlespacing*{\subsection}{0pt}{10.5pt}{0pt}
+
+\titleformat{\subsubsection}
+  {\CJKfamily{simhei}\bfseries\zihao{-4}\fontsize{12pt}{18pt}\selectfont}
+  {\thesubsubsection}{1em}{}
+\titlespacing*{\subsubsection}{0pt}{9pt}{0pt}
+
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\numberwithin{equation}{section}
+\renewcommand{\thefigure}{\arabic{section}-\arabic{figure}}
+\renewcommand{\thetable}{\arabic{section}-\arabic{table}}
+\renewcommand{\theequation}{\arabic{section}-\arabic{equation}}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+\captionsetup{
+  font={small,stretch=1.25},
+  labelfont=normalfont,
+  labelsep=space,
+  justification=centering,
+  singlelinecheck=false,
+  skip=3pt
+}
+\captionsetup[figure]{position=bottom}
+\captionsetup[table]{position=top}
+\raggedbottom
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{0pt}
+\setcounter{topnumber}{5}
+\setcounter{bottomnumber}{5}
+\setcounter{totalnumber}{10}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.90}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{8pt plus 2pt minus 2pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+\AtBeginEnvironment{figure}{\centering\CJKfamily{simsun}\zihao{5}}
+\AtEndEnvironment{figure}{\bodyfont}
+\AtBeginEnvironment{table}{\centering\CJKfamily{simsun}\zihao{5}}
+\AtEndEnvironment{table}{\bodyfont}
+
+\newcommand{\tocentryfont}{\CJKfamily{simsun}\TimesNewRoman\fontsize{12pt}{15pt}\selectfont}
+\renewcommand{\contentsname}{目\quad 录}
+\renewcommand{\cfttoctitlefont}{\hfill\CJKfamily{simhei}\bfseries\fontsize{16pt}{22pt}\selectfont}
+\renewcommand{\cftaftertoctitle}{\hfill\par}
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftaftertoctitleskip}{18pt}
+\renewcommand{\cftsecfont}{\tocentryfont}
+\renewcommand{\cftsubsecfont}{\tocentryfont}
+\renewcommand{\cftsubsubsecfont}{\tocentryfont}
+\renewcommand{\cftsecpagefont}{\tocentryfont}
+\renewcommand{\cftsubsecpagefont}{\tocentryfont}
+\renewcommand{\cftsubsubsecpagefont}{\tocentryfont}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\setcounter{tocdepth}{3}
+\setlength{\cftsecindent}{0pt}
+\setlength{\cftsubsecindent}{2em}
+\setlength{\cftsubsubsecindent}{4em}
+\setlength{\cftsecnumwidth}{4.8em}
+\setlength{\cftsubsecnumwidth}{3.0em}
+\setlength{\cftsubsubsecnumwidth}{4.2em}
+\setlength{\cftbeforesecskip}{0pt}
+\setlength{\cftbeforesubsecskip}{0pt}
+\setlength{\cftbeforesubsubsecskip}{0pt}
+\makeatletter
+\newcommand{\maketemplatecontents}{%
+  \clearpage
+  \pagestyle{empty}
+  \thispagestyle{empty}
+  \begingroup
+    \tocentryfont
+    \setlength{\parindent}{0pt}
+    {\centering\CJKfamily{simhei}\bfseries\fontsize{16pt}{22pt}\selectfont 目\quad 录\par}
+    \vspace{18pt}
+    \@starttoc{toc}
+  \endgroup
+  \clearpage
+}
+\makeatother
+
+\fancypagestyle{mainstyle}{
+  \fancyhf{}
+  \fancyhead[C]{\textcolor{gray}{\CJKfamily{simsun}\zihao{4}人工智能基础项目报告}}
+  \fancyfoot[C]{\CJKfamily{simsun}\zihao{5}\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\headrule}{\textcolor{gray}{\hrule width\headwidth height\headrulewidth \vskip-\headrulewidth}}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\newcommand{\startmainmatter}{%
+  \clearpage
+  \pagenumbering{arabic}
+  \pagestyle{mainstyle}
+  \bodyfont
+  \setlength{\abovedisplayskip}{6pt plus 2pt minus 2pt}
+  \setlength{\belowdisplayskip}{6pt plus 2pt minus 2pt}
+  \setlength{\abovedisplayshortskip}{3pt plus 1pt minus 1pt}
+  \setlength{\belowdisplayshortskip}{6pt plus 2pt minus 2pt}
+  \setlength{\parindent}{2em}
+  \setlength{\parskip}{0pt}
+}
+
+% ===== 封面可编辑信息 =====
+\newcommand{\ChineseTitle}{基于 PyTorch 的小型 GPT 模型构建与训练}
+\newcommand{\EnglishTitle}{Building and Training a Small GPT Model with PyTorch}
+\newcommand{\College}{自动化学院}
+\newcommand{\Major}{自动化}
+\newcommand{\StudentName}{姜尹雯}
+\newcommand{\StudentID}{1120233551}
+\newcommand{\Supervisor}{周志强}
+\newcommand{\FinishDate}{2026 年 6 月 7 日}
+
+\newcommand{\coverlabel}[1]{{\CJKfamily{simsun}\zihao{3}#1}}
+\newcommand{\covervalue}[1]{%
+  \makebox[76.6mm][c]{\CJKfamily{simsun}\zihao{3}#1}%
+}
+\newcommand{\coverfield}[1]{%
+  \makebox[76.6mm][c]{%
+    \ooalign{%
+      \hfil\CJKfamily{simsun}\zihao{3}#1\hfil\cr
+      \raisebox{-0.42ex}{\rule{76.6mm}{0.4pt}}\cr
+    }%
+  }%
+}
+\newcommand{\coverinforow}[2]{%
+  \makebox[36.4mm][r]{\coverlabel{#1}}%
+  \coverfield{#2}\\[8.2mm]%
+}
+
+\newcommand{\makecover}{%
+  \begin{titlepage}
+    \thispagestyle{empty}
+    \centering
+
+    \vspace*{1.2mm}
+    \includegraphics[width=4.28859in,height=0.84927in]{pic/封面学校名称.png}
+
+    \vspace{6.2mm}
+    {\CJKfamily{simsun}\bfseries\fontsize{36pt}{40pt}\selectfont 人工智能基础项目报告\par}
+
+    \vspace{19.0mm}
+    {\CJKfamily{stxihei}\bfseries\fontsize{22pt}{27.5pt}\selectfont
+      \parbox[c]{\textwidth}{\centering\ChineseTitle}\par}
+
+    \vspace{6.0mm}
+    {\TimesNewRoman\bfseries\fontsize{16pt}{20pt}\selectfont
+      \parbox[c]{\textwidth}{\centering\EnglishTitle}\par}
+
+    \vspace{25.0mm}
+    \begin{minipage}{113.0mm}
+      \coverinforow{学\quad\quad 院：}{自动化学院}
+      \coverinforow{专\quad\quad 业：}{自动化}
+      \coverinforow{学生姓名：}{姜尹雯}
+      \coverinforow{学\quad\quad 号：}{1120233551}
+      \coverinforow{指导教师：}{周志强}
+    \end{minipage}
+
+    \vfill
+    {\CJKfamily{simsun}\zihao{3}\FinishDate\par}
+    \vspace{11.5mm}
+  \end{titlepage}
+}
+
+\begin{document}
+
+\makecover
+\maketemplatecontents
+\startmainmatter
+
+\section{绪论}
+
+\subsection{项目背景与意义}
+
+近年来，以 GPT 为代表的大语言模型在自然语言处理、智能问答、文本生成、代码生成等领域得到了广泛应用。大语言模型通常基于 Transformer 结构，通过大规模文本数据训练，使模型能够学习语言中的上下文关系和文本生成规律。与传统自然语言处理方法相比，大语言模型具有更强的通用性和迁移能力，已经成为当前人工智能领域的重要研究方向之一。
+
+本项目以“从零构建大模型”为主题，重点并不是训练一个真正具有大规模参数量和复杂能力的商用模型，而是在低算力平台上实现一个小参数量 GPT 类语言模型。通过完成模型搭建、文本数据处理、预训练、微调和推理展示等过程，可以更加直观地理解大语言模型的基本结构和工作原理，从实践角度加深对 Transformer、注意力机制、语言建模以及微调方法的认识。
+
+\subsection{项目任务与技术路线}
+
+\subsubsection{项目主要任务}
+
+根据课程作业要求，本项目需要围绕“从零构建大模型”的完整流程展开。首先，需要梳理大语言模型构建过程中涉及的重要知识点，包括 GPT 类模型的基本架构、模型参数配置、文本数据准备、分词方法、词嵌入、位置编码、预训练目标以及微调方法等内容。其次，需要基于 PyTorch 搭建一个小参数量 GPT 类语言模型，使其能够在普通单机或较低算力平台上完成训练和推理，并体现大语言模型中的核心机制。然后，需要准备小规模文本语料，完成文本编码、训练样本构造和预训练程序设计，使模型能够通过预测下一个 token 的方式学习基本语言规律。在此基础上，还需要构建监督微调数据，选择合适的微调任务和训练策略，使预训练后的模型能够适应特定任务。最后，需要对实验结果进行展示和分析，总结项目完成情况、遇到的问题以及学习收获。
+
+\subsubsection{技术路线}
+
+
+\begin{enumerate}
+  \item 空载启动；
+  \item 额定负载启动；
+  \item 低速靠站到高速巡航切换；
+  \item 正转---反转切换；
+  \item 坡道下行制动或紧急制动；
+  \item $20\%$ 负载扰动下的抗扰性能分析。
+\end{enumerate}
+
+
+\section{大语言模型相关理论基础}
+
+\subsection{大语言模型与 GPT 架构}
+
+\subsubsection{大语言模型基本概念}
+
+\subsubsection{GPT 的 Decoder-only 结构}
+
+\subsubsection{GPT 的基本计算流程}
+
+\subsection{文本表示与输入编码}
+
+\subsubsection{Tokenizer 与 token id}
+
+\subsubsection{词嵌入 Token Embedding}
+
+\subsubsection{位置编码 Position Embedding}
+
+\subsection{Transformer 核心机制}
+
+\subsubsection{自注意力机制}
+
+\subsubsection{多头注意力机制}
+
+\subsubsection{因果遮罩机制}
+
+\subsubsection{前馈网络、残差连接与层归一化}
+
+\subsection{预训练与微调机制}
+
+\subsubsection{预训练任务}
+
+\subsubsection{微调任务}
+
+\subsubsection{预训练与微调的区别}
+
+
+\section{小型 GPT 模型设计与实现}
+
+\subsection{模型总体设计}
+
+\subsubsection{模型整体结构}
+
+\subsubsection{输入输出形式}
+
+\subsection{核心模块实现}
+
+\subsubsection{Token Embedding 与 Position Embedding}
+
+\subsubsection{Multi-Head Self-Attention}
+
+\subsubsection{Transformer Block}
+
+\subsubsection{输出层与损失函数}
+
+\subsection{模型配置与参数量分析}
+
+\subsubsection{模型参数配置}
+
+\subsubsection{小参数模型的合理性}
+
+
+\section{数据准备与预训练实验}
+
+\subsection{预训练数据准备}
+
+\subsubsection{数据来源}
+
+\subsubsection{数据清洗}
+
+\subsubsection{Tokenizer 构建}
+
+\subsection{预训练程序设计}
+
+\subsubsection{训练样本构造}
+
+\subsubsection{训练目标与损失函数}
+
+\subsubsection{预训练程序流程}
+
+\subsection{预训练结果与生成效果分析}
+
+\subsubsection{损失变化分析}
+
+\subsubsection{文本生成效果展示}
+
+\subsubsection{预训练效果分析}
+
+
+\section{微调实验设计与结果分析}
+
+\subsection{微调任务与数据集构建}
+
+\subsubsection{微调任务说明}
+
+\subsubsection{监督数据格式}
+
+\subsection{微调方法设计}
+
+\subsubsection{模型改造方式}
+
+\subsubsection{微调训练流程}
+
+\subsubsection{评价指标}
+
+\subsection{微调结果与对比分析}
+
+\subsubsection{微调训练结果}
+
+\subsubsection{测试样例展示}
+
+\subsubsection{微调前后对比}
+
+
+\section{推理展示与系统运行}
+
+\subsection{文本生成与推理流程}
+
+\subsubsection{自回归生成过程}
+
+\subsubsection{Temperature 采样策略}
+
+\subsection{运行方式与结果展示}
+
+\subsubsection{项目运行命令}
+
+\subsubsection{示例输出结果}
+
+
+\section{问题分析与改进方向}
+
+\subsection{实验中遇到的问题}
+
+\subsubsection{数据方面的问题}
+
+\subsubsection{模型方面的问题}
+
+\subsubsection{训练方面的问题}
+
+\subsection{模型局限性与改进方向}
+
+\subsubsection{模型局限性}
+
+\subsubsection{后续改进方向}
+
+
+\section{总结与体会}
+
+\subsection{项目成果总结}
+
+\subsubsection{完成的主要工作}
+
+\subsubsection{项目完成情况评价}
+
+\subsection{学习收获与体会}
+
+\subsubsection{理论方面的收获}
+
+\subsubsection{实践方面的收获}
+
+\subsubsection{项目体会}
+
+
+\section*{参考文献与开源资源说明}
+\addcontentsline{toc}{section}{参考文献与开源资源说明}
+
+
+\section*{附录}
+\addcontentsline{toc}{section}{附录}
+
+\subsection*{附录 A：项目文件结构}
+\addcontentsline{toc}{subsection}{附录 A：项目文件结构}
+
+\subsection*{附录 B：主要运行命令}
+\addcontentsline{toc}{subsection}{附录 B：主要运行命令}
+
+\subsection*{附录 C：核心代码说明}
+\addcontentsline{toc}{subsection}{附录 C：核心代码说明}
+
+\subsection*{附录 D：实验结果截图清单}
+\addcontentsline{toc}{subsection}{附录 D：实验结果截图清单}
+
+\end{document}
