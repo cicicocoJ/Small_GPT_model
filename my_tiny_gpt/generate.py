@@ -14,7 +14,7 @@ import torch
 import torch.nn.functional as F
 
 from mini_gpt import MiniGPT, MiniGPTConfig
-from tiny_tokenizer import CharTokenizer
+from tiny_tokenizer import load_tokenizer as load_saved_tokenizer
 
 
 DEFAULT_PROMPTS = [
@@ -30,7 +30,7 @@ def load_checkpoint(model_path: Path, device: torch.device) -> dict:
     checkpoint 由 train_pretrain.py 保存，应该包含：
     - model_state_dict: 模型权重
     - config: 模型配置
-    - vocab_path: 词表路径
+    - vocab_path: tokenizer 配置路径
     """
 
     try:
@@ -58,7 +58,7 @@ def build_model_from_checkpoint(checkpoint: dict, device: torch.device) -> MiniG
     return model
 
 
-def load_tokenizer(checkpoint: dict, default_vocab_path: Path) -> CharTokenizer:
+def load_tokenizer(checkpoint: dict, default_vocab_path: Path):
     """加载训练时保存的 tokenizer 词表。"""
 
     vocab_path = default_vocab_path
@@ -75,7 +75,7 @@ def load_tokenizer(checkpoint: dict, default_vocab_path: Path) -> CharTokenizer:
             f"找不到词表文件: {vocab_path}。请先运行 tiny_tokenizer.py 或 train_pretrain.py。"
         )
 
-    return CharTokenizer.load(vocab_path)
+    return load_saved_tokenizer(vocab_path)
 
 
 def sample_next_token(
@@ -108,7 +108,7 @@ def sample_next_token(
 
 def generate_text(
     model: MiniGPT,
-    tokenizer: CharTokenizer,
+    tokenizer,
     prompt: str,
     max_new_tokens: int,
     temperature: float,
@@ -158,7 +158,7 @@ def parse_args() -> argparse.Namespace:
         "--vocab_path",
         type=str,
         default=None,
-        help="词表路径，默认使用 my_tiny_gpt/outputs/vocab.json",
+        help="tokenizer 配置路径，默认使用 my_tiny_gpt/outputs/vocab.json",
     )
     parser.add_argument(
         "--prompt",
@@ -237,3 +237,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

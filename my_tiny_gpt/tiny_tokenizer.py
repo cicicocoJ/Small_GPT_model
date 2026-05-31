@@ -1,146 +1,230 @@
-"""字符级 tokenizer。
+"""Tokenizer utilities for the tiny GPT project.
 
-本作业重点是跑通小型 GPT 的完整流程，因此这里使用最简单稳定的字符级分词：
-每个字符对应一个 token id。它不追求工业级分词效果，但非常适合本科课程展示。
+This file supports two tokenizers:
+1. GPT2Tokenizer: GPT-2 BPE tokenizer from tiktoken.
+2. SimpleRegexTokenizer: a small corpus tokenizer based on regex tokens.
+
+For this homework, regex is usually better for TinyStories experiments because
+it keeps the vocabulary small and makes the output head much smaller.
 """
 
 import json
+import re
 from pathlib import Path
+from typing import Any
 
 
-class CharTokenizer:
-    """简单字符级 tokenizer。
+class GPT2Tokenizer:
+    """Light wrapper around tiktoken's GPT-2 tokenizer."""
 
-    功能：
-    1. 根据训练语料构建字符词表；
-    2. 将文本编码为 token ids；
-    3. 将 token ids 解码回文本；
-    4. 保存和加载词表。
+    tokenizer_type = "gpt2"
+    encoding_name = "gpt2"
+    eos_token = "<|endoftext|>"
+
+    def __init__(self, encoding_name: str = "gpt2"):
+        self.encoding_name = encoding_name
+        import tiktoken
+
+        self.tokenizer = tiktoken.get_encoding(encoding_name)
+
+    @property
+    def vocab_size(self) -> int:
+        return self.tokenizer.n_vocab
+
+    @property
+    def eos_id(self) -> int:
+        return self.tokenizer.eot_token
+
+    @property
+    def pad_id(self) -> int:
+        return self.eos_id
+
+    @classmethod
+    def build_from_text(cls, text: str) -> "GPT2Tokenizer":
+        _ = text
+        return cls()
+
+    def encode(self, text: str) -> list[int]:
+        return self.tokenizer.encode(text, allowed_special={self.eos_token})
+
+    def decode(self, token_ids: list[int], skip_special_tokens: bool = False) -> str:
+        ids = [int(token_id) for token_id in token_ids]
+        if skip_special_tokens:
+            ids = [token_id for token_id in ids if token_id != self.eos_id]
+        return self.tokenizer.decode(ids)
+
+    def save(self, config_path: str | Path) -> None:
+        config_path = Path(config_path)
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        data = {
+            "tokenizer_type": self.tokenizer_type,
+            "encoding_name": self.encoding_name,
+            "vocab_size": self.vocab_size,
+            "eos_token": self.eos_token,
+            "eos_id": self.eos_id,
+            "pad_id": self.pad_id,
+        }
+        config_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    @classmethod
+    def load(cls, config_path: str | Path) -> "GPT2Tokenizer":
+        data = json.loads(Path(config_path).read_text(encoding="utf-8"))
+        return cls(encoding_name=data.get("encoding_name", "gpt2"))
+
+
+class SimpleRegexTokenizer:
+    """Small regex tokenizer for tiny English corpora.
+
+    The tokenizer treats <|endoftext|> as one complete special token, then
+    splits normal text into words, numbers, punctuation, and newlines.
     """
 
+    tokenizer_type = "regex"
+    eos_token = "<|endoftext|>"
     pad_token = "<PAD>"
     unk_token = "<UNK>"
+    newline_token = "\n"
+    token_pattern = re.compile(r"<\|endoftext\|>|\n|--|[A-Za-z]+(?:'[A-Za-z]+)?|\d+|[^\w\s]", re.UNICODE)
 
     def __init__(self, token_to_id: dict[str, int]):
         self.token_to_id = token_to_id
         self.id_to_token = {idx: token for token, idx in token_to_id.items()}
-
-        if self.pad_token not in self.token_to_id:
-            raise ValueError("词表中必须包含 <PAD>")
-        if self.unk_token not in self.token_to_id:
-            raise ValueError("词表中必须包含 <UNK>")
+        if self.eos_token not in token_to_id or self.unk_token not in token_to_id:
+            raise ValueError("regex tokenizer vocabulary must contain <|endoftext|> and <UNK>")
 
     @property
     def vocab_size(self) -> int:
-        """返回词表大小，用于初始化 MiniGPT 的 vocab_size。"""
-
         return len(self.token_to_id)
 
     @property
-    def pad_id(self) -> int:
-        """返回 padding token 的 id。"""
+    def eos_id(self) -> int:
+        return self.token_to_id[self.eos_token]
 
-        return self.token_to_id[self.pad_token]
+    @property
+    def pad_id(self) -> int:
+        return self.eos_id
 
     @property
     def unk_id(self) -> int:
-        """返回未知字符 token 的 id。"""
-
         return self.token_to_id[self.unk_token]
 
     @classmethod
-    def build_from_text(cls, text: str) -> "CharTokenizer":
-        """从一段文本中构建字符词表。
-
-        为了结果可复现，普通字符按排序后的顺序加入词表。
-        """
-
-        chars = sorted(set(text))
-        token_to_id = {
-            cls.pad_token: 0,
-            cls.unk_token: 1,
-        }
-
-        for char in chars:
-            if char not in token_to_id:
-                token_to_id[char] = len(token_to_id)
-
-        return cls(token_to_id)
+    def tokenize(cls, text: str) -> list[str]:
+        return cls.token_pattern.findall(text)
 
     @classmethod
-    def build_from_file(cls, text_path: str | Path) -> "CharTokenizer":
-        """从文本文件读取语料并构建词表。"""
-
-        text_path = Path(text_path)
-        text = text_path.read_text(encoding="utf-8")
-        return cls.build_from_text(text)
+    def build_from_text(cls, text: str) -> "SimpleRegexTokenizer":
+        tokens = cls.tokenize(text)
+        unique_tokens = sorted(set(tokens))
+        token_to_id = {
+            cls.eos_token: 0,
+            cls.unk_token: 1,
+            cls.pad_token: 2,
+        }
+        for token in unique_tokens:
+            if token not in token_to_id:
+                token_to_id[token] = len(token_to_id)
+        return cls(token_to_id)
 
     def encode(self, text: str) -> list[int]:
-        """将字符串编码为 token id 列表。"""
+        return [self.token_to_id.get(token, self.unk_id) for token in self.tokenize(text)]
 
-        return [self.token_to_id.get(char, self.unk_id) for char in text]
-
-    def decode(self, token_ids: list[int]) -> str:
-        """将 token id 列表解码回字符串。
-
-        解码时跳过 <PAD>，遇到未知 id 时用 <UNK> 占位。
-        """
-
-        chars = []
+    def decode(self, token_ids: list[int], skip_special_tokens: bool = False) -> str:
+        tokens = []
         for token_id in token_ids:
             token = self.id_to_token.get(int(token_id), self.unk_token)
             if token == self.pad_token:
                 continue
-            chars.append(token)
-        return "".join(chars)
+            if skip_special_tokens and token == self.eos_token:
+                continue
+            tokens.append(token)
 
-    def save(self, vocab_path: str | Path) -> None:
-        """保存词表到 JSON 文件，后续训练和推理共用同一个词表。"""
+        text = ""
+        no_space_before = {".", ",", ":", ";", "?", "!", ")", "]", "}", "'", '"'}
+        no_space_after = {"(", "[", "{", '"'}
 
-        vocab_path = Path(vocab_path)
-        vocab_path.parent.mkdir(parents=True, exist_ok=True)
+        for token in tokens:
+            if token == self.newline_token:
+                text = text.rstrip() + "\n"
+            elif token == self.eos_token:
+                text = text.rstrip() + self.eos_token
+            elif not text or text.endswith(("\n", " ")) or token in no_space_before:
+                text += token
+            elif text[-1] in no_space_after:
+                text += token
+            else:
+                text += " " + token
+        return text
+
+    def save(self, config_path: str | Path) -> None:
+        config_path = Path(config_path)
+        config_path.parent.mkdir(parents=True, exist_ok=True)
         data = {
+            "tokenizer_type": self.tokenizer_type,
             "token_to_id": self.token_to_id,
+            "eos_token": self.eos_token,
+            "eos_id": self.eos_id,
             "pad_token": self.pad_token,
+            "pad_id": self.pad_id,
             "unk_token": self.unk_token,
+            "vocab_size": self.vocab_size,
         }
-        vocab_path.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+        config_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     @classmethod
-    def load(cls, vocab_path: str | Path) -> "CharTokenizer":
-        """从 JSON 文件加载词表。"""
-
-        vocab_path = Path(vocab_path)
-        data = json.loads(vocab_path.read_text(encoding="utf-8"))
+    def load(cls, config_path: str | Path) -> "SimpleRegexTokenizer":
+        data = json.loads(Path(config_path).read_text(encoding="utf-8"))
         token_to_id = {token: int(idx) for token, idx in data["token_to_id"].items()}
         return cls(token_to_id)
 
 
+def build_tokenizer(tokenizer_name: str, text: str):
+    """Build tokenizer by name."""
+
+    if tokenizer_name == "gpt2":
+        return GPT2Tokenizer.build_from_text(text)
+    if tokenizer_name == "regex":
+        return SimpleRegexTokenizer.build_from_text(text)
+    raise ValueError(f"Unsupported tokenizer: {tokenizer_name}")
+
+
+def load_tokenizer(config_path: str | Path):
+    """Load tokenizer from saved config file."""
+
+    data: dict[str, Any] = json.loads(Path(config_path).read_text(encoding="utf-8"))
+    tokenizer_type = data.get("tokenizer_type", "gpt2")
+    if tokenizer_type in {"gpt2", "tiktoken_gpt2"}:
+        return GPT2Tokenizer.load(config_path)
+    if tokenizer_type == "regex":
+        return SimpleRegexTokenizer.load(config_path)
+    raise ValueError(f"Unsupported tokenizer type in config: {tokenizer_type}")
+
+
+# Backward-compatible alias for older imports.
+CharTokenizer = SimpleRegexTokenizer
+
+
 def main() -> None:
-    """命令行自测：构建词表、保存词表、测试 encode/decode。"""
+    sample_text = "Once upon a time<|endoftext|>A tiny GPT learned words.\nIt was small, but it worked!"
+    tokenizer = SimpleRegexTokenizer.build_from_text(sample_text)
+    ids = tokenizer.encode(sample_text)
+    decoded = tokenizer.decode(ids)
+    decoded_without_special = tokenizer.decode(ids, skip_special_tokens=True)
 
-    project_dir = Path(__file__).resolve().parent
-    text_path = project_dir / "data" / "pretrain.txt"
-    vocab_path = project_dir / "outputs" / "vocab.json"
+    print("Tokenizer type: regex")
+    print("Vocab size:", tokenizer.vocab_size)
+    print("EOS token id:", tokenizer.eos_id)
+    print("PAD token id:", tokenizer.pad_id)
+    print("Tokens:", tokenizer.tokenize(sample_text))
+    print("Encoded ids:", ids)
+    print("Decoded text:", decoded)
+    print("Decoded without special:", decoded_without_special)
 
-    tokenizer = CharTokenizer.build_from_file(text_path)
-    tokenizer.save(vocab_path)
-
-    sample_text = "Learning begins with curiosity."
-    token_ids = tokenizer.encode(sample_text)
-    decoded_text = tokenizer.decode(token_ids)
-
-    print("语料路径:", text_path)
-    print("词表路径:", vocab_path)
-    print("词表大小:", tokenizer.vocab_size)
-    print("样例文本:", sample_text)
-    print("编码结果:", token_ids)
-    print("解码结果:", decoded_text)
-    assert decoded_text == sample_text
-    print("测试通过：字符级 tokenizer 可以正常编码和解码。")
+    assert SimpleRegexTokenizer.eos_token in tokenizer.token_to_id
+    assert tokenizer.tokenize("a<|endoftext|>b") == ["a", SimpleRegexTokenizer.eos_token, "b"]
+    assert "< | endoftext | >" not in decoded
+    assert SimpleRegexTokenizer.eos_token not in decoded_without_special
+    print("Tokenizer self-test passed.")
 
 
 if __name__ == "__main__":

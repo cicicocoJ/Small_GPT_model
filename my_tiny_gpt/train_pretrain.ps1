@@ -1,70 +1,126 @@
 # train_pretrain.ps1
-# 用于集中调整 MiniGPT 预训练参数
+# TinyStories-only MiniGPT pretraining launcher.
 
-$PYTHON_CMD = "python"
-$TRAIN_SCRIPT = "train_pretrain.py"
+param(
+    [string]$Tokenizer = "regex",
+    [string]$RunName = "tinystories_2k_fast",
+    [switch]$Cpu,
 
-# =========================
-# 训练参数：主要改这里
-# =========================
+    [string]$HfDataset = "roneneldan/TinyStories",
+    [string]$HfTrainSplit = "train[:2000]",
+    [string]$HfValSplit = "validation[:200]",
+    [string]$HfLoadMode = "hub",
+    [switch]$SaveHfToDisk,
+    [string]$CacheDir = "data/hf_cache",
+    [string]$HfDiskTrainPath = "data/TinyStories_train",
+    [string]$HfDiskValPath = "data/TinyStories_val",
 
-$CONTEXT_LENGTH = 128
-$EMB_DIM = 128
-$N_HEADS = 4
-$N_LAYERS = 4
-$DROPOUT = 0.1
+    [int]$Epochs = 10,
+    [int]$ContextLength = 64,
+    [int]$Stride = 64,
+    [int]$EmbDim = 64,
+    [int]$NLayers = 2,
+    [int]$NHeads = 4,
+    [double]$Dropout = 0.2,
+    [int]$BatchSize = 16,
+    [double]$LearningRate = 3e-4,
+    [double]$WeightDecay = 0.05,
+    [int]$EvalFreq = 50,
+    [int]$EvalBatches = 100,
 
-$STRIDE = 64
-$TRAIN_RATIO = 0.9
-$BATCH_SIZE = 8
-$EPOCHS = 30
-$LEARNING_RATE = "3e-4"
-$WEIGHT_DECAY = 0.01
-
-$EVAL_FREQ = 5
-$EVAL_BATCHES = 5
-
-$MAX_NEW_TOKENS = 120
-$PROMPT = "Learning"
-$SEED = 123
-
-# 如果想强制使用 CPU，把下面改成 $true
-$USE_CPU = $false
-
-Write-Host "开始预训练 MiniGPT..."
-Write-Host "epochs: $EPOCHS"
-Write-Host "batch_size: $BATCH_SIZE"
-Write-Host "learning_rate: $LEARNING_RATE"
-Write-Host "context_length: $CONTEXT_LENGTH"
-Write-Host "emb_dim: $EMB_DIM"
-Write-Host "n_layers: $N_LAYERS"
-Write-Host "n_heads: $N_HEADS"
-
-$ARGS = @(
-    $TRAIN_SCRIPT,
-    "--context_length", $CONTEXT_LENGTH,
-    "--emb_dim", $EMB_DIM,
-    "--n_heads", $N_HEADS,
-    "--n_layers", $N_LAYERS,
-    "--dropout", $DROPOUT,
-    "--stride", $STRIDE,
-    "--train_ratio", $TRAIN_RATIO,
-    "--batch_size", $BATCH_SIZE,
-    "--epochs", $EPOCHS,
-    "--learning_rate", $LEARNING_RATE,
-    "--weight_decay", $WEIGHT_DECAY,
-    "--eval_freq", $EVAL_FREQ,
-    "--eval_batches", $EVAL_BATCHES,
-    "--max_new_tokens", $MAX_NEW_TOKENS,
-    "--prompt", $PROMPT,
-    "--seed", $SEED
+    [int]$MaxNewTokens = 150,
+    [string]$Prompt = "Once upon a time",
+    [double]$Temperature = 0.8,
+    [int]$TopK = 40,
+    [double]$RepetitionPenalty = 1.1,
+    [int]$NoRepeatNgramSize = 3
 )
 
-if ($USE_CPU) {
-    $ARGS += "--cpu"
+$ErrorActionPreference = "Stop"
+Set-Location $PSScriptRoot
+
+$cacheAbs = Join-Path $PSScriptRoot $CacheDir
+$env:HF_HOME = $cacheAbs
+$env:HF_HUB_CACHE = Join-Path $cacheAbs "hub"
+$env:HF_DATASETS_CACHE = Join-Path $cacheAbs "datasets"
+$env:HF_HUB_DISABLE_SYMLINKS_WARNING = "1"
+
+New-Item -ItemType Directory -Force -Path $env:HF_HOME | Out-Null
+New-Item -ItemType Directory -Force -Path $env:HF_HUB_CACHE | Out-Null
+New-Item -ItemType Directory -Force -Path $env:HF_DATASETS_CACHE | Out-Null
+
+$device = if ($Cpu) { "cpu" } else { "auto cuda if available" }
+
+Write-Host "MiniGPT TinyStories pretraining" -ForegroundColor Cyan
+Write-Host "Working directory: $(Get-Location)"
+Write-Host "HfDataset: $HfDataset"
+Write-Host "HfTrainSplit: $HfTrainSplit"
+Write-Host "HfValSplit: $HfValSplit"
+Write-Host "HfLoadMode: $HfLoadMode"
+Write-Host "CacheDir: $cacheAbs"
+Write-Host "RunName: $RunName"
+Write-Host "Tokenizer: $Tokenizer"
+Write-Host "Epochs: $Epochs"
+Write-Host "ContextLength: $ContextLength"
+Write-Host "Stride: $Stride"
+Write-Host "BatchSize: $BatchSize"
+Write-Host "Device: $device"
+
+$pythonArgs = @(
+    "train_pretrain.py",
+    "--hf_dataset", $HfDataset,
+    "--hf_train_split", $HfTrainSplit,
+    "--hf_val_split", $HfValSplit,
+    "--hf_load_mode", $HfLoadMode,
+    "--cache_dir", $CacheDir,
+    "--hf_disk_train_path", $HfDiskTrainPath,
+    "--hf_disk_val_path", $HfDiskValPath,
+    "--tokenizer", $Tokenizer,
+    "--save_best",
+    "--collapse_blank_lines",
+    "--sample",
+    "--epochs", $Epochs,
+    "--context_length", $ContextLength,
+    "--stride", $Stride,
+    "--emb_dim", $EmbDim,
+    "--n_layers", $NLayers,
+    "--n_heads", $NHeads,
+    "--dropout", $Dropout,
+    "--batch_size", $BatchSize,
+    "--learning_rate", $LearningRate,
+    "--weight_decay", $WeightDecay,
+    "--eval_freq", $EvalFreq,
+    "--eval_batches", $EvalBatches,
+    "--early_stopping_patience", "10",
+    "--min_delta", "0.0",
+    "--max_new_tokens", $MaxNewTokens,
+    "--prompt", $Prompt,
+    "--temperature", $Temperature,
+    "--top_k", $TopK,
+    "--repetition_penalty", $RepetitionPenalty,
+    "--no_repeat_ngram_size", $NoRepeatNgramSize,
+    "--clean_text"
+)
+
+if ($RunName -ne "") {
+    $pythonArgs += @("--run_name", $RunName)
 }
 
-& $PYTHON_CMD @ARGS
+if ($Cpu) {
+    $pythonArgs += "--cpu"
+}
 
-Write-Host "预训练完成。"
-Write-Host "请查看 my_tiny_gpt/outputs/ 下的模型、loss 曲线和生成样例。"
+if ($SaveHfToDisk) {
+    $pythonArgs += "--save_hf_to_disk"
+}
+
+Write-Host "Command:" -ForegroundColor Cyan
+Write-Host ("python " + ($pythonArgs -join " "))
+
+& python @pythonArgs
+
+if ($LASTEXITCODE -ne 0) {
+    throw "Pretraining failed. Please check the error message above."
+}
+
+Write-Host "Pretraining finished." -ForegroundColor Green

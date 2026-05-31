@@ -1,0 +1,89 @@
+MiniGPT TinyStories pretraining log
+dataset name: roneneldan/TinyStories
+train split: train[:500]
+val split: validation[:100]
+tokenizer type: regex
+device: cpu
+train text chars: 409919
+val text chars: 71196
+train tokens: 98185
+val tokens: 17349
+vocab_size: 3710
+train samples: 3067
+val samples: 541
+model parameters: 578688
+config: {"vocab_size": 3710, "context_length": 64, "emb_dim": 64, "n_heads": 4, "n_layers": 2, "dropout": 0.1, "qkv_bias": false}
+epoch 01 step 000020 | train_loss 8.1195 | val_loss 8.1038 | train_perplexity 3359.44 | val_perplexity 3307.09 | best_val_loss 8.1038 | bad_eval_count 0
+epoch 01 step 000040 | train_loss 7.6669 | val_loss 7.6390 | train_perplexity 2136.47 | val_perplexity 2077.75 | best_val_loss 7.6390 | bad_eval_count 0
+epoch 01 step 000060 | train_loss 7.0830 | val_loss 7.0480 | train_perplexity 1191.55 | val_perplexity 1150.56 | best_val_loss 7.0480 | bad_eval_count 0
+epoch 01 step 000080 | train_loss 6.6281 | val_loss 6.6165 | train_perplexity 756.05 | val_perplexity 747.34 | best_val_loss 6.6165 | bad_eval_count 0
+epoch 01 step 000100 | train_loss 6.3013 | val_loss 6.2989 | train_perplexity 545.27 | val_perplexity 543.99 | best_val_loss 6.2989 | bad_eval_count 0
+epoch 01 step 000120 | train_loss 6.0715 | val_loss 6.0669 | train_perplexity 433.33 | val_perplexity 431.32 | best_val_loss 6.0669 | bad_eval_count 0
+epoch 01 step 000140 | train_loss 5.9390 | val_loss 5.9193 | train_perplexity 379.57 | val_perplexity 372.13 | best_val_loss 5.9193 | bad_eval_count 0
+epoch 01 step 000160 | train_loss 5.7842 | val_loss 5.8205 | train_perplexity 325.13 | val_perplexity 337.15 | best_val_loss 5.8205 | bad_eval_count 0
+epoch 01 step 000180 | train_loss 5.7769 | val_loss 5.7601 | train_perplexity 322.75 | val_perplexity 317.40 | best_val_loss 5.7601 | bad_eval_count 0
+epoch 01 step 000200 | train_loss 5.7138 | val_loss 5.7108 | train_perplexity 303.02 | val_perplexity 302.11 | best_val_loss 5.7108 | bad_eval_count 0
+epoch 01 step 000220 | train_loss 5.6901 | val_loss 5.6575 | train_perplexity 295.92 | val_perplexity 286.44 | best_val_loss 5.6575 | bad_eval_count 0
+epoch 01 step 000240 | train_loss 5.6473 | val_loss 5.6035 | train_perplexity 283.54 | val_perplexity 271.39 | best_val_loss 5.6035 | bad_eval_count 0
+epoch 01 step 000260 | train_loss 5.5533 | val_loss 5.5622 | train_perplexity 258.09 | val_perplexity 260.39 | best_val_loss 5.5622 | bad_eval_count 0
+epoch 01 step 000280 | train_loss 5.5754 | val_loss 5.5198 | train_perplexity 263.86 | val_perplexity 249.59 | best_val_loss 5.5198 | bad_eval_count 0
+epoch 01 step 000300 | train_loss 5.3677 | val_loss 5.4787 | train_perplexity 214.38 | val_perplexity 239.53 | best_val_loss 5.4787 | bad_eval_count 0
+epoch 01 step 000320 | train_loss 5.5391 | val_loss 5.4340 | train_perplexity 254.44 | val_perplexity 229.07 | best_val_loss 5.4340 | bad_eval_count 0
+epoch 01 step 000340 | train_loss 5.4670 | val_loss 5.3900 | train_perplexity 236.76 | val_perplexity 219.20 | best_val_loss 5.3900 | bad_eval_count 0
+epoch 01 step 000360 | train_loss 5.4180 | val_loss 5.3423 | train_perplexity 225.42 | val_perplexity 208.99 | best_val_loss 5.3423 | bad_eval_count 0
+epoch 01 step 000380 | train_loss 5.3659 | val_loss 5.2958 | train_perplexity 213.98 | val_perplexity 199.50 | best_val_loss 5.2958 | bad_eval_count 0
+epoch 02 step 000400 | train_loss 5.2712 | val_loss 5.2590 | train_perplexity 194.65 | val_perplexity 192.29 | best_val_loss 5.2590 | bad_eval_count 0
+epoch 02 step 000420 | train_loss 5.4412 | val_loss 5.2236 | train_perplexity 230.72 | val_perplexity 185.60 | best_val_loss 5.2236 | bad_eval_count 0
+epoch 02 step 000440 | train_loss 5.1974 | val_loss 5.1798 | train_perplexity 180.80 | val_perplexity 177.64 | best_val_loss 5.1798 | bad_eval_count 0
+epoch 02 step 000460 | train_loss 5.2100 | val_loss 5.1409 | train_perplexity 183.10 | val_perplexity 170.87 | best_val_loss 5.1409 | bad_eval_count 0
+epoch 02 step 000480 | train_loss 5.1536 | val_loss 5.1090 | train_perplexity 173.06 | val_perplexity 165.50 | best_val_loss 5.1090 | bad_eval_count 0
+epoch 02 step 000500 | train_loss 5.1577 | val_loss 5.0804 | train_perplexity 173.76 | val_perplexity 160.85 | best_val_loss 5.0804 | bad_eval_count 0
+epoch 02 step 000520 | train_loss 4.9934 | val_loss 5.0519 | train_perplexity 147.44 | val_perplexity 156.32 | best_val_loss 5.0519 | bad_eval_count 0
+epoch 02 step 000540 | train_loss 5.1686 | val_loss 5.0168 | train_perplexity 175.66 | val_perplexity 150.92 | best_val_loss 5.0168 | bad_eval_count 0
+epoch 02 step 000560 | train_loss 4.9642 | val_loss 4.9873 | train_perplexity 143.20 | val_perplexity 146.54 | best_val_loss 4.9873 | bad_eval_count 0
+epoch 02 step 000580 | train_loss 5.1577 | val_loss 4.9539 | train_perplexity 173.77 | val_perplexity 141.73 | best_val_loss 4.9539 | bad_eval_count 0
+epoch 02 step 000600 | train_loss 4.9523 | val_loss 4.9263 | train_perplexity 141.51 | val_perplexity 137.87 | best_val_loss 4.9263 | bad_eval_count 0
+epoch 02 step 000620 | train_loss 5.0385 | val_loss 4.8992 | train_perplexity 154.24 | val_perplexity 134.18 | best_val_loss 4.8992 | bad_eval_count 0
+epoch 02 step 000640 | train_loss 4.8588 | val_loss 4.8784 | train_perplexity 128.86 | val_perplexity 131.42 | best_val_loss 4.8784 | bad_eval_count 0
+epoch 02 step 000660 | train_loss 4.9571 | val_loss 4.8507 | train_perplexity 142.19 | val_perplexity 127.83 | best_val_loss 4.8507 | bad_eval_count 0
+epoch 02 step 000680 | train_loss 4.8748 | val_loss 4.8314 | train_perplexity 130.95 | val_perplexity 125.38 | best_val_loss 4.8314 | bad_eval_count 0
+epoch 02 step 000700 | train_loss 4.8625 | val_loss 4.8103 | train_perplexity 129.35 | val_perplexity 122.77 | best_val_loss 4.8103 | bad_eval_count 0
+epoch 02 step 000720 | train_loss 4.7268 | val_loss 4.7892 | train_perplexity 112.94 | val_perplexity 120.20 | best_val_loss 4.7892 | bad_eval_count 0
+epoch 02 step 000740 | train_loss 4.7501 | val_loss 4.7684 | train_perplexity 115.60 | val_perplexity 117.73 | best_val_loss 4.7684 | bad_eval_count 0
+epoch 02 step 000760 | train_loss 4.7820 | val_loss 4.7537 | train_perplexity 119.34 | val_perplexity 116.01 | best_val_loss 4.7537 | bad_eval_count 0
+epoch 03 step 000780 | train_loss 4.7644 | val_loss 4.7347 | train_perplexity 117.26 | val_perplexity 113.83 | best_val_loss 4.7347 | bad_eval_count 0
+epoch 03 step 000800 | train_loss 4.8405 | val_loss 4.7162 | train_perplexity 126.54 | val_perplexity 111.74 | best_val_loss 4.7162 | bad_eval_count 0
+epoch 03 step 000820 | train_loss 4.8329 | val_loss 4.7022 | train_perplexity 125.58 | val_perplexity 110.18 | best_val_loss 4.7022 | bad_eval_count 0
+epoch 03 step 000840 | train_loss 4.6437 | val_loss 4.6773 | train_perplexity 103.92 | val_perplexity 107.48 | best_val_loss 4.6773 | bad_eval_count 0
+epoch 03 step 000860 | train_loss 4.7964 | val_loss 4.6679 | train_perplexity 121.07 | val_perplexity 106.48 | best_val_loss 4.6679 | bad_eval_count 0
+epoch 03 step 000880 | train_loss 4.6693 | val_loss 4.6526 | train_perplexity 106.63 | val_perplexity 104.86 | best_val_loss 4.6526 | bad_eval_count 0
+epoch 03 step 000900 | train_loss 4.6442 | val_loss 4.6395 | train_perplexity 103.98 | val_perplexity 103.50 | best_val_loss 4.6395 | bad_eval_count 0
+epoch 03 step 000920 | train_loss 4.6437 | val_loss 4.6266 | train_perplexity 103.92 | val_perplexity 102.17 | best_val_loss 4.6266 | bad_eval_count 0
+epoch 03 step 000940 | train_loss 4.8459 | val_loss 4.6074 | train_perplexity 127.21 | val_perplexity 100.22 | best_val_loss 4.6074 | bad_eval_count 0
+epoch 03 step 000960 | train_loss 4.6336 | val_loss 4.5845 | train_perplexity 102.88 | val_perplexity 97.96 | best_val_loss 4.5845 | bad_eval_count 0
+epoch 03 step 000980 | train_loss 4.6070 | val_loss 4.5799 | train_perplexity 100.19 | val_perplexity 97.51 | best_val_loss 4.5799 | bad_eval_count 0
+epoch 03 step 001000 | train_loss 4.5651 | val_loss 4.5729 | train_perplexity 96.07 | val_perplexity 96.83 | best_val_loss 4.5729 | bad_eval_count 0
+epoch 03 step 001020 | train_loss 4.5346 | val_loss 4.5611 | train_perplexity 93.18 | val_perplexity 95.68 | best_val_loss 4.5611 | bad_eval_count 0
+epoch 03 step 001040 | train_loss 4.5639 | val_loss 4.5546 | train_perplexity 95.96 | val_perplexity 95.07 | best_val_loss 4.5546 | bad_eval_count 0
+epoch 03 step 001060 | train_loss 4.5353 | val_loss 4.5374 | train_perplexity 93.25 | val_perplexity 93.45 | best_val_loss 4.5374 | bad_eval_count 0
+epoch 03 step 001080 | train_loss 4.5186 | val_loss 4.5174 | train_perplexity 91.70 | val_perplexity 91.60 | best_val_loss 4.5174 | bad_eval_count 0
+epoch 03 step 001100 | train_loss 4.5436 | val_loss 4.5025 | train_perplexity 94.03 | val_perplexity 90.24 | best_val_loss 4.5025 | bad_eval_count 0
+epoch 03 step 001120 | train_loss 4.5576 | val_loss 4.4883 | train_perplexity 95.36 | val_perplexity 88.97 | best_val_loss 4.4883 | bad_eval_count 0
+epoch 03 step 001140 | train_loss 4.4595 | val_loss 4.4776 | train_perplexity 86.44 | val_perplexity 88.02 | best_val_loss 4.4776 | bad_eval_count 0
+best_val_loss: 4.4776
+best_epoch: 3
+best_step: 1140
+final_train_loss: 4.5602
+final_val_loss: 4.4813
+elapsed_seconds: 30.15
+best_model_path: H:\学校\人工智能基础\Small_gpt_model\my_tiny_gpt\outputs_tinystories\pretrain_model_best.pt
+last_model_path: H:\学校\人工智能基础\Small_gpt_model\my_tiny_gpt\outputs_tinystories\pretrain_model_last.pt
+loss_csv_path: H:\学校\人工智能基础\Small_gpt_model\my_tiny_gpt\outputs_tinystories\pretrain_loss.csv
+sample_path: H:\学校\人工智能基础\Small_gpt_model\my_tiny_gpt\outputs_tinystories\pretrain_sample.txt
+generated sample:
+Once upon a time.
+Just with the boy was a time,"Yes to catch something at the forest. He and he could her the ground to be she said, there was so excited!"You, she to play. The mom."
+It could make."He had out a time you his garden happy was so,"What and have of it.
+"
+The little girl was so happy on,"I'm a voice were special big friends!
+< | endoftext | >
