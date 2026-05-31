@@ -4,3 +4,4 @@ my_tiny_gpt/**/*.pt
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+my_tiny_gpt/data/hf_cache/
