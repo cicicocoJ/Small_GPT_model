@@ -4,6 +4,8 @@ Dependency for Hugging Face datasets:
     pip install datasets
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import json
@@ -15,15 +17,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import torch
-import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
-
-from mini_gpt import MiniGPT, MiniGPTConfig, count_parameters
 from tiny_tokenizer import GPT2Tokenizer, SimpleRegexTokenizer
 
 
-class PretrainDataset(Dataset):
+class PretrainDataset:
     """Next-token prediction dataset built from one token sequence."""
 
     def __init__(self, token_ids: list[int], context_length: int, stride: int):
@@ -388,6 +385,13 @@ def build_metrics(
 
 
 def train(args: argparse.Namespace) -> None:
+    global torch, F, DataLoader, MiniGPT, MiniGPTConfig, count_parameters
+
+    import torch
+    import torch.nn.functional as F
+    from torch.utils.data import DataLoader
+    from mini_gpt import MiniGPT, MiniGPTConfig, count_parameters
+
     script_dir = Path(__file__).resolve().parent
     output_dir = make_output_dir(script_dir, args)
     vocab_path = output_dir / "vocab.json"

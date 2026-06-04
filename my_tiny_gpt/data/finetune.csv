@@ -1,1 +1,121 @@
-
+text,label
+"Lily lost her red ball in the yard. Ben found it under a bush and gave it back. They laughed and played until dinner.",positive
+"Tom spilled milk on Mia's drawing. He said sorry and helped her make a new one. Mia smiled at the bright colors.",positive
+"Anna could not tie her shoe before school. Dad showed her slowly, and she tried again. Soon she walked outside proudly.",positive
+"Sam's kite fell into a small tree. His friend Max held the ladder while Sam reached it. The kite flew high again.",positive
+"Nora forgot her snack at home. Ella shared an apple and a cookie with her. They sat together and told funny stories.",positive
+"Jack was afraid of the dark room. Mom turned on a tiny lamp and stayed nearby. Jack found his bear and felt safe.",positive
+"Ruby broke a blue cup by mistake. She told Grandma the truth and helped clean up. Grandma hugged her for being honest.",positive
+"Leo wanted the yellow truck, but so did Dan. They took turns with a little timer. Both boys had fun in the sand.",positive
+"Molly's paper boat sank in the pond. Her brother helped fold a stronger boat. The new boat floated all the way across.",positive
+"Finn could not read the last word. His teacher sounded it out with him. Finn read the whole page and grinned.",positive
+"Sophie dropped the flower seeds. The children picked them up one by one. By spring, little green leaves grew in a row.",positive
+"Owen's tower fell down before the game began. His friends helped build it taller. They clapped when the tower stood still.",positive
+"Grace saw a little bird near the path. She called a grown-up and waited quietly. The bird was carried to a safe nest.",positive
+"Henry forgot to bring his toy train. His cousin shared a wooden car instead. They made a long road across the floor.",positive
+"Emma painted outside the line and frowned. Her art teacher said the sky could be wild. Emma added stars and loved the picture.",positive
+"Noah tore his paper crown. Ava brought tape and shiny stickers. The crown looked even better than before.",positive
+"Lucy felt lonely at recess. A new girl asked her to play tag. Soon they were running and laughing together.",positive
+"Eli dropped the last berry pie. He helped bake small berry muffins instead. Everyone got one warm muffin after supper.",positive
+"Zoe could not find her kitten. She shook a little bell by the porch. The kitten ran home and curled in her lap.",positive
+"Mason pushed too fast on the swing. He stopped and said sorry to June. Then he pushed gently and June smiled.",positive
+"Ivy's snowman lost its carrot nose. Her neighbor gave her a small orange carrot. The snowman looked cheerful again.",positive
+"Caleb was last in the race and felt small. His friends waited at the finish line. They cheered because he did not give up.",positive
+"Bella spilled beads across the rug. Her sister helped sort them into cups. Together they made a bright necklace.",positive
+"Ryan forgot the words to the song. The class hummed softly to help him. Ryan sang the last line with a big bow.",positive
+"Mia's plant bent in the wind. She tied it to a stick and watered it. The plant stood tall the next morning.",positive
+"Theo lost his place in the parade. A kind helper led him back to his class. Theo waved his flag with everyone else.",positive
+"Sara's puppy chewed her ribbon. She made the ribbon into a tiny bow for the puppy. Sara giggled at how silly he looked.",positive
+"Adam was mad when the blocks fell. He took a deep breath and tried again. This time the bridge stayed up.",positive
+"Chloe had no blue crayon for the sea. Liam lent her his blue crayon. Their pictures looked like the same sunny beach.",positive
+"Peter dropped his mitten in the snow. Nina spotted it beside a fence. Peter put it on and thanked her.",positive
+"Lily looked for her red ball all day. No one helped her search the yard. At night the ball was still gone.",negative
+"Tom spilled milk on Mia's drawing. He laughed and ran away. Mia sat alone with the wet paper.",negative
+"Anna could not tie her shoe before school. Everyone hurried outside without her. She missed the bus and cried.",negative
+"Sam's kite fell into a small tree. The wind pulled it higher and higher. Sam went home without his kite.",negative
+"Nora forgot her snack at home. The other children ate and did not share. Nora watched with an empty tummy.",negative
+"Jack was afraid of the dark room. The lamp would not turn on. He stayed by the door and shook.",negative
+"Ruby broke a blue cup by mistake. She hid the pieces under a towel. Grandma stepped close and looked worried.",negative
+"Leo wanted the yellow truck, but Dan grabbed it first. They shouted and pulled the toy apart. The truck wheel snapped off.",negative
+"Molly's paper boat sank in the pond. Her brother laughed and walked away. Molly watched the wet paper disappear.",negative
+"Finn could not read the last word. The page felt too hard. He closed the book and would not try again.",negative
+"Sophie dropped the flower seeds in the mud. Rain washed them down the path. In spring, the garden stayed empty.",negative
+"Owen's tower fell down before the game began. The other children kicked the blocks away. Owen sat quietly by himself.",negative
+"Grace saw a little bird near the path. A loud dog scared it under the bench. Grace could not find it again.",negative
+"Henry forgot to bring his toy train. His cousin would not share any toys. Henry waited by the window until it was time to leave.",negative
+"Emma painted outside the line and frowned. Another child said the picture looked messy. Emma folded the paper and hid it.",negative
+"Noah tore his paper crown. The tape was gone and the stickers were gone too. Noah wore no crown in the play.",negative
+"Lucy felt lonely at recess. The other children ran past her. She sat on the step until the bell rang.",negative
+"Eli dropped the last berry pie. The pan broke on the floor. Supper ended with no treat for anyone.",negative
+"Zoe could not find her kitten. She called by the porch again and again. Only the wind answered.",negative
+"Mason pushed too fast on the swing. June fell in the dirt and cried. Mason froze and did not say sorry.",negative
+"Ivy's snowman lost its carrot nose. A crow carried the carrot away. Ivy looked at the plain snow face and sighed.",negative
+"Caleb was last in the race and felt small. The others ran off before he finished. Caleb crossed the line alone.",negative
+"Bella spilled beads across the rug. Nobody helped her pick them up. The beads rolled under the sofa and stayed there.",negative
+"Ryan forgot the words to the song. The room became quiet. Ryan stepped back with tears in his eyes.",negative
+"Mia's plant bent in the wind. She forgot to water it after school. By morning the leaves hung low.",negative
+"Theo lost his place in the parade. The crowd grew loud around him. Theo could not see his class anywhere.",negative
+"Sara's puppy chewed her ribbon. The ribbon was torn into tiny strings. Sara shut the box and walked away.",negative
+"Adam was mad when the blocks fell. He kicked the bridge across the room. No one wanted to build with him.",negative
+"Chloe had no blue crayon for the sea. Liam kept his crayon in his pocket. Chloe left the ocean blank.",negative
+"Peter dropped his mitten in the snow. He did not notice until his hand was cold. The mitten was lost under the white road.",negative
+"Amy lost her little bell in the grass. Grandpa helped her listen carefully and look slowly. They found it shining near the gate.",positive
+"Ben's paper hat blew into the pond. A kind girl used a stick to pull it back. Ben wore the damp hat and laughed.",positive
+"Clara could not reach the shelf. Her brother brought a stool and stood beside her. Clara got the book and thanked him.",positive
+"David forgot the rules of the game. His friends explained them again with patience. Soon David played his turn correctly.",positive
+"Eva's little boat had no sail. Dad gave her a square of cloth and string. The boat sailed across the bathtub.",positive
+"Fred stepped in a muddy puddle before class. His teacher found dry socks in a basket. Fred joined story time with warm feet.",positive
+"Gina wanted to draw a moon. Her pencil broke in half. Mom sharpened it, and Gina finished the silver moon.",positive
+"Hugo lost count while sharing blocks. Sara helped him count slowly from one to ten. Every child got the same number.",positive
+"Isla dropped her shell collection. The shells scattered across the porch. Her cousins helped gather them into a blue bowl.",positive
+"Jake's wagon got stuck in the soft dirt. Two friends pulled from the front. The wagon rolled free with a bump.",positive
+"Kate felt shy at the birthday table. Lily saved her a seat and passed the cake. Kate joined the song softly.",positive
+"Liam's small drum sounded too loud. He listened when the baby woke up. Then he tapped gently and everyone stayed calm.",positive
+"Mila's picture fell behind the desk. Her teacher moved the chair and picked it up. Mila hung the picture on the wall.",positive
+"Nick forgot to feed the class fish. He remembered before going home and added food. The fish swam in happy little circles.",positive
+"Olive wanted the red scarf for the play. Pete wanted it too. They used it first as a cape and then as a flag.",positive
+"Paul dropped his cookie in the dirt. Grandma gave him a clean cookie from the jar. Paul shared a bite with his sister.",positive
+"Quinn could not open the sticky jar. Dad showed Quinn how to twist with a towel. The lid popped open at last.",positive
+"Rose missed the first jump in hopscotch. Her friends said she could try again. Rose jumped all the squares the second time.",positive
+"Tina's toy boat bumped into a rock. She moved the rock and fixed the path. The boat floated smoothly down the stream.",positive
+"Uma forgot where she put her drawing. She checked the table, the chair, and the bag. The drawing was safe inside the bag.",positive
+"Victor was scared by thunder. His sister counted between the light and the sound. Victor felt brave under the blanket.",positive
+"Wendy's sand cake fell apart. She added a little water and packed it again. The new cake stood with a shell on top.",positive
+"Xander could not find a partner for the dance. Nora held out her hand. They danced in a small circle together.",positive
+"Yara's scarf tangled on a branch. She waited instead of pulling hard. Mom untied it, and the scarf stayed whole.",positive
+"Zack lost the tiny wheel from his car. He searched under the sofa with a flashlight. The wheel rolled out beside a sock.",positive
+"Penny made a mistake in the puppet show. She bowed and tried the line again. The children clapped for her puppet.",positive
+"Oscar felt left out of the block city. Mia gave him a road to build. His road connected all the houses.",positive
+"Daisy's basket was too heavy. Tom carried one handle with her. They brought the apples home together.",positive
+"Felix forgot to close the gate. The puppy ran into the yard. Felix called softly, and the puppy came back.",positive
+"June had only one sticker left. She gave it to her little brother. He put it on his shirt and hugged her.",positive
+"Amy lost her little bell in the grass. She searched quickly and gave up. The bell stayed hidden as the sun went down.",negative
+"Ben's paper hat blew into the pond. No one could reach it from the bank. The hat sank and Ben walked away quietly.",negative
+"Clara could not reach the shelf. The book stayed high above her hands. She sat on the floor without a story.",negative
+"David forgot the rules of the game. The others became cross with him. David left the circle before his turn.",negative
+"Eva's little boat had no sail. The boat tipped over in the bathtub. Eva watched it fill with water.",negative
+"Fred stepped in a muddy puddle before class. His socks stayed wet all morning. Fred did not want to join story time.",negative
+"Gina wanted to draw a moon. Her pencil broke and no one had another. The paper stayed empty on the table.",negative
+"Hugo lost count while sharing blocks. Some children got many blocks and some got none. The game ended with shouting.",negative
+"Isla dropped her shell collection. The shells cracked on the hard porch. Isla put the broken pieces in a box.",negative
+"Jake's wagon got stuck in the soft dirt. He pulled until the handle snapped. The wagon stayed in the mud.",negative
+"Kate felt shy at the birthday table. No one saved her a seat. Kate stood by the wall during the song.",negative
+"Liam's small drum sounded too loud. The baby woke and cried. Liam hid the drum behind the chair.",negative
+"Mila's picture fell behind the desk. The class had to leave for lunch. Mila never found where it had gone.",negative
+"Nick forgot to feed the class fish. He remembered after the room was locked. The fish waited in the quiet bowl.",negative
+"Olive wanted the red scarf for the play. Pete pulled it from her hands. The scarf tore before the play began.",negative
+"Paul dropped his cookie in the dirt. There were no cookies left in the jar. Paul watched the others eat.",negative
+"Quinn could not open the sticky jar. The lid would not move at all. Quinn pushed the jar away.",negative
+"Rose missed the first jump in hopscotch. The children said the game was over. Rose stepped off the chalk squares.",negative
+"Tina's toy boat bumped into a rock. The little boat cracked at the side. Tina carried it home with water dripping out.",negative
+"Uma forgot where she put her drawing. She checked everywhere and found only blank paper. The drawing was gone.",negative
+"Victor was scared by thunder. The lights went out in the room. Victor cried under the blanket.",negative
+"Wendy's sand cake fell apart. The wind blew sand into her eyes. Wendy left the beach pail behind.",negative
+"Xander could not find a partner for the dance. The music started without him. Xander stood still at the edge.",negative
+"Yara's scarf tangled on a branch. She pulled too hard and ripped it. The loose thread hung in her hand.",negative
+"Zack lost the tiny wheel from his car. He searched under the sofa but found nothing. The car could not roll.",negative
+"Penny made a mistake in the puppet show. She forgot every line after that. The puppet hung silently from her hand.",negative
+"Oscar felt left out of the block city. No one gave him a place to build. Oscar knocked his own blocks into a pile.",negative
+"Daisy's basket was too heavy. She tried to carry it alone and dropped it. The apples rolled into the road.",negative
+"Felix forgot to close the gate. The puppy ran down the street. Felix called, but the puppy did not come back.",negative
+"June had only one sticker left. She kept it hidden in her pocket. Her little brother walked away with no smile.",negative
