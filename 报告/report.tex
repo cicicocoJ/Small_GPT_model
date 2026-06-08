@@ -306,6 +306,13 @@
   \item 微调与结果分析：在预训练模型基础上构建简单监督任务进行微调，并结合 loss 曲线、perplexity、生成样例和微调结果，对模型效果进行分析总结。
 \end{enumerate}
 
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.96\textwidth,height=7.2cm,keepaspectratio]{pic/技术路线图.png}
+  \caption{MiniGPT 项目技术路线图}
+  \label{fig:technical_route}
+\end{figure}
+
 \section{大语言模型相关理论基础与关键知识点}
 
 \subsection{GPT 类语言模型基本原理}
@@ -417,19 +424,19 @@ $[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$。其中，最�
 从整体结构看，\texttt{MiniGPT} 包含 token embedding、position embedding、embedding
 Dropout、多层 \texttt{TransformerBlock}、final LayerNorm 以及无偏置线性输出层。该结构
 与第二章介绍的 GPT 基本原理一致，但参数规模明显减小，更适合课程实验中对大语言模型核
-心机制进行复现和验证。
+心机制进行复现和验证。模型总体结构如图~\ref{fig:minigpt_structure} 所示。
 
-\begin{quote}
-输入 token ids $\rightarrow$ Token Embedding + Position Embedding $\rightarrow$
-Transformer Block $\times N$ $\rightarrow$ Final LayerNorm $\rightarrow$ Linear Head
-$\rightarrow$ logits
-\end{quote}
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.96\textwidth,height=7.0cm,keepaspectratio]{pic/minigpt模型结构图.png}
+  \caption{MiniGPT 模型总体结构图}
+  \label{fig:minigpt_structure}
+\end{figure}
 
-上述流程体现了小型 GPT 的基本计算路径：离散 token id 首先被映射为连续向量表示，再经
-过多层因果 Transformer Block 建模上下文关系，最终输出词表维度上的 logits。后续预训练、
-文本生成和微调实验均建立在这一模型主体之上。
-
-% 后续可加入图：pic/MiniGPT模型结构图.png
+图~\ref{fig:minigpt_structure} 体现了小型 GPT 的基本计算路径：离散 token id 首先被映射
+为连续向量表示，并与位置编码相加；随后隐藏状态经过多层因果 Transformer Block 建模上下
+文关系；最后通过 final LayerNorm 和线性输出层得到词表维度上的 logits。后续预训练、文本
+生成和微调实验均建立在这一模型主体之上。
 
 \subsection{核心模块设计}
 
@@ -533,6 +540,177 @@ $[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$ 的 logits，从
 embedding、因果多头自注意力、前馈网络、残差连接和 LayerNorm 等核心机制，同时通过较
 小参数规模适配单机低算力环境。该部分直接对应课程作业中“小参数量 GPT 类大语言模型架
 构搭建”的要求，并为后续预训练、推理生成和微调实验提供模型基础。
+
+\section{训练数据准备与模型预训练实验}
+
+\subsection{TinyStories 数据集与文本预处理}
+
+\textbf{数据集划分。} 本实验采用 Hugging Face 上的 TinyStories 数据集作为预训练语料。
+该数据集由大量简短英文故事组成，语言结构相对简单，包含常见人物、动作、对话和基础叙
+事关系，适合小参数量 GPT 模型学习基本英文故事生成模式。实验中选取训练集切片
+\texttt{train[:5000]} 和验证集切片 \texttt{validation[:500]}，读取字段为 \texttt{text}。
+这种规模既能提供较为丰富的短故事文本，又不会使 CPU 单机训练时间过长，符合低算力课程
+实验的目标。
+
+\textbf{文本拼接与清洗。} 程序读取每条故事文本后，将多条故事拼接为连续语料，并在不同
+故事之间加入 \texttt{<|endoftext|>} 作为分隔标记，用于表示故事边界。文本清洗主要包括
+统一 Windows 和 Linux 换行、去除行尾多余空格、压缩连续空行等基础操作。为了便于重复实
+验，程序设置了 Hugging Face 数据缓存目录，但报告正文不展开具体本地路径，相关文件统一
+作为实验输出管理。
+
+\begin{table}[!htbp]
+  \centering
+  \caption{TinyStories 预训练数据统计}
+  \label{tab:pretrain_data_stats}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{lll}
+    \toprule
+    项目 & 训练集 & 验证集 \\
+    \midrule
+    数据切片 & \texttt{train[:5000]} & \texttt{validation[:500]} \\
+    文本字符数 & $4246757$ & $412120$ \\
+    token 数量 & $1014146$ & $98828$ \\
+    样本数量 & $15846$ & $1544$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+表~\ref{tab:pretrain_data_stats} 给出了预训练语料的主要统计信息。可以看出，经过分词和
+滑动窗口处理后，训练集和验证集均能提供足够数量的 next-token prediction 样本，用于观察
+小型 GPT 模型的训练过程和验证集表现。
+
+\subsection{分词编码与训练样本构造}
+
+\textbf{Tokenizer 选择。} 本项目的 \texttt{tiny\_tokenizer.py} 中保留了两种 tokenizer：
+\texttt{GPT2Tokenizer} 和 \texttt{SimpleRegexTokenizer}。前者使用 GPT-2 BPE tokenizer，
+文本适应能力更强，但固定词表较大，会显著增加词嵌入层和输出层参数量；后者是本实验采
+用的主方案，它将 \texttt{<|endoftext|>} 作为完整特殊 token，同时将英文单词、数字、标点
+和换行符等切分为 token。与字符级分词相比，正则分词更容易保留完整单词；与 GPT-2 BPE
+相比，正则分词词表更小，更适合低算力小模型实验。本次预训练中，正则 tokenizer 由训练
+语料构建词表，最终词表大小为 $8785$。
+
+\textbf{滑动窗口样本构造。} 文本被编码为 token id 序列后，程序使用滑动窗口构造语言模
+型训练样本。每个输入样本为长度 \texttt{context\_length} 的连续 token 序列，目标序列为
+输入整体右移一位后的 token 序列，即模型在每个位置都学习预测下一个 token：
+\begin{equation}
+  \mathbf{x}=(x_1,x_2,\cdots,x_T),\quad
+  \mathbf{y}=(x_2,x_3,\cdots,x_{T+1}) .
+  \label{eq:pretrain_next_token_sample}
+\end{equation}
+本实验设置 \texttt{context\_length=64}、\texttt{stride=64}。这种设置不会让相邻窗口重叠，
+可以减少训练样本数量和训练时间，同时仍能覆盖 TinyStories 中的主要文本片段。
+
+\subsection{预训练策略与程序实现}
+
+预训练任务采用 next-token prediction。MiniGPT 对每个 batch 输出形状为
+$[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$ 的 logits，程序将 logits 与
+右移一位后的目标 token 序列计算交叉熵损失，从而同时优化序列中所有位置的下一个 token
+预测误差。优化器采用 AdamW，并设置 weight decay 以提供一定正则化效果。
+
+训练过程中，程序定期在训练集和验证集上评估 loss 与 perplexity。Perplexity 由 loss 的指
+数变换得到，可以理解为模型预测下一个 token 时的平均不确定性。训练脚本保存验证集 loss
+最低时的 best checkpoint，同时保存最后一轮模型，并记录训练参数、metrics、loss 曲线、训
+练日志和文本生成样例。实验中设置 early stopping patience 为 $10$，本次主实验按预设的
+$20$ 个 epoch 完成。整个预训练过程在 CPU 单机环境下运行，用于验证小型模型在较低算力
+平台上的可运行性。
+
+\begin{table}[!htbp]
+  \centering
+  \caption{MiniGPT 预训练参数设置}
+  \label{tab:pretrain_settings}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{ll}
+    \toprule
+    参数 & 设置 \\
+    \midrule
+    数据集 & TinyStories \\
+    tokenizer & regex tokenizer \\
+    \texttt{vocab\_size} & $8785$ \\
+    \texttt{context\_length} & $64$ \\
+    \texttt{stride} & $64$ \\
+    \texttt{emb\_dim} & $64$ \\
+    \texttt{n\_heads} & $4$ \\
+    \texttt{n\_layers} & $2$ \\
+    \texttt{dropout} & $0.2$ \\
+    batch size & $16$ \\
+    epochs & $20$ \\
+    learning rate & $3\times10^{-4}$ \\
+    weight decay & $0.05$ \\
+    训练设备 & CPU \\
+    参数量 & $1228288$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+表~\ref{tab:pretrain_settings} 汇总了本次预训练的主要参数。整体配置延续了小参数量模型
+设计思路，通过较小的嵌入维度、层数和上下文长度控制训练成本，同时保留 GPT 类模型的核
+心训练流程。
+
+\subsection{预训练结果与生成效果分析}
+
+\textbf{Loss 与 perplexity 变化。} 预训练过程中，训练 loss 和验证 loss 均明显下降。第一
+次评估时，验证 loss 为 $7.9660$，对应验证 perplexity 为 $2881.37$；训练结束时，最优验
+证 loss 降至 $3.3125$，对应 perplexity 约为 $27.45$。这说明模型对下一个 token 的预测不
+确定性显著降低，已经从 TinyStories 语料中学习到一定的英文短故事语言模式。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{pic/pretrain_loss.png}
+  \caption{MiniGPT 在 TinyStories 数据集上的预训练 loss 曲线}
+  \label{fig:pretrain_loss_curve}
+\end{figure}
+
+图~\ref{fig:pretrain_loss_curve} 展示了预训练过程中的 loss 曲线。可以看到，训练初期 loss
+下降较快，随后下降速度逐渐减慢；验证 loss 与训练 loss 保持相近趋势，说明模型训练过程
+整体较稳定。由于模型规模较小，后期生成质量仍然有限，但 loss 曲线已经能够证明预训练流
+程有效运行。
+
+\begin{table}[!htbp]
+  \centering
+  \caption{预训练主要结果}
+  \label{tab:pretrain_results}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{ll}
+    \toprule
+    指标 & 数值 \\
+    \midrule
+    初始验证 loss & $7.9660$ \\
+    初始验证 perplexity & $2881.37$ \\
+    最优验证 loss & $3.3125$ \\
+    最优验证 perplexity & 约 $27.45$ \\
+    最优 epoch & $20$ \\
+    最优 step & $19700$ \\
+    最终训练 loss & $3.2659$ \\
+    最终验证 loss & $3.3147$ \\
+    训练耗时 & 约 $2491\ \mathrm{s}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+表~\ref{tab:pretrain_results} 给出了本次预训练的主要结果。最优验证 loss 出现在第 $20$ 个
+epoch、第 $19700$ 个 step，最终训练 loss 和最终验证 loss 相差较小，说明模型虽然容量有限，
+但在该数据规模下没有出现特别严重的训练集与验证集分离现象。
+
+\textbf{生成样例与效果分析。} 预训练完成后，使用提示词 \texttt{Once upon a time} 进行自
+回归生成。下面截取一段生成样例：
+\begin{quote}
+\small
+Prompt: Once upon a time
+
+Generated: Once upon a time, there was a little girl named Lily. She decided to her mom and sing for hours. One day, she went to the kitchen and asked her room to the man and she asked Lily got on her mommy and said,"What is so we can be your knee. You have to wait to know what I try my job you do. You can learn you fix you like to play with your parents. Now you will take another things. I wish I do you want to pick for help me."
+They look at least and Ben were happy. They looked for his lesson that they had lots of fun!
+\end{quote}
+
+从样例可以看出，模型已经能够形成较明显的故事开头和儿童故事风格，生成内容中出现人物、
+动作和简单对话，整体形式接近 TinyStories 的短故事叙述。然而，生成文本仍存在语法不稳
+定、角色关系混乱、长程一致性不足等问题，例如部分句子中动作搭配不自然，情节推进也不
+够连贯。这与模型规模较小、训练数据切片有限以及训练轮次有限有关。总体而言，本实验的
+目标不是达到真实大语言模型的生成质量，而是验证小型 GPT 预训练流程能够完整运行，并能
+展示出初步的语言建模效果。
+
+本章完成了预训练部分的主要工作，包括 TinyStories 数据准备、文本拼接与清洗、分词编码、
+滑动窗口训练样本构造、预训练程序实现、模型预训练以及预训练效果测试与展示。这些内容
+对应了课程作业中“完成大模型预训练”的要求，并为后续微调实验提供了预训练模型基础。
 
 \section{微调实验与任务适应}
 
@@ -663,25 +841,132 @@ embedding、因果多头自注意力、前馈网络、残差连接和 LayerNorm 
 
 本章围绕故事结局倾向二分类任务完成了监督微调实验。实验构建了带标签的故事结尾数据，确定了全参数微调与 mean pooling 的分类策略，并在预训练 MiniGPT 基础上实现了分类微调程序。实验通过 accuracy、F1、混淆矩阵和测试样例展示了模型处理特定任务的效果，测试集准确率达到 84.44\%。同时，结果也表明小模型和小规模数据仍存在局限：模型对 positive 类识别更稳定，对包含负面事件但带有积极措辞的边界样本仍容易误判，后续可通过补充负向样本和改进标注一致性进一步提升泛化能力。
 
+\subsection{本章小结}
+
+本章完成了故事结局倾向二分类任务的监督微调实验。实验构建了带标签的故事结尾数据，并在预训练 MiniGPT 基础上加入分类头，使模型能够从文本生成任务适配到具体分类任务。结果表明，微调后的模型能够较好地区分积极和消极结局，测试集准确率达到 84.44%。同时，实验也说明小模型在边界样本判断上仍存在不足，后续可通过扩充数据、改进标注和优化微调策略进一步提升效果。
+
+\section{总结与体会}
+
+\textbf{一、成果评价。}
+
+本项目围绕“从零构建大模型”的课程要求，完成了从理论学习到实验实现的完整流程。项目首先梳理了 GPT 类语言模型、Tokenizer、Transformer、预训练与微调等关键知识点；随后基于 PyTorch 搭建了小参数量 MiniGPT 模型，并在 TinyStories 数据集上完成预训练和文本生成测试；最后，通过故事结局倾向二分类任务完成了监督微调实验。整体来看，本项目虽然没有训练真实的大规模商业模型，但在低算力条件下实现了一个可训练、可推理、可微调的小型 GPT 类模型，基本覆盖了课程任务中关于模型搭建、预训练、微调和结果分析的要求。
+
+从实验结果看，预训练阶段模型的 loss 明显下降，生成文本也开始呈现出简单英文故事的结构，说明模型已经学习到一定的语言模式。微调阶段，模型能够根据输入故事结尾判断其倾向类别，说明预训练模型可以通过监督数据适配到特定任务中。这一过程也体现了大语言模型的一般训练思路：预训练主要学习通用语言规律，微调则用于面向具体任务进行适配。
+
+本项目仍存在一些不足，主要原因与模型规模、数据规模和算力条件有关：
+\begin{enumerate}
+\item 模型参数量较小，生成文本的语法稳定性、情节连贯性和长程一致性仍有限；
+\item regex tokenizer 泛化能力有限，不如成熟的 BPE tokenizer；
+\item CPU 训练速度较慢，限制了模型规模、训练轮数和超参数搜索范围；
+\item 微调数据规模较小，部分类别边界样本仍容易误判。
+\end{enumerate}
+
+后续可以从数据、模型和训练条件三个方面继续改进。首先，可以扩大预训练语料和微调数据规模，使模型接触更多语言模式和边界样本；其次，可以尝试 GPT-2 BPE 等更成熟的分词方案，并适当增加模型层数和隐藏维度；最后，如果具备 GPU 条件，可以进一步增加训练轮数，比较不同模型配置和采样策略对生成效果的影响。
+
+\textbf{二、个人体会与收获。}
+
+通过本次项目，我对大语言模型的底层流程有了更完整的认识。过去使用大模型时，我更多关注的是输入和输出效果，而这次从文本分词、token 编码、词嵌入、位置嵌入，到 Transformer Block、loss 计算和自回归生成，逐步理解了 GPT 模型内部的基本运行方式。尤其是因果注意力机制让我更清楚地认识到，GPT 的生成过程本质上是在已有上下文条件下不断预测下一个 token。
+
+本次实验也让我更直观地区分了预训练和微调的作用。预训练使模型学习通用语言模式，微调则让模型面向具体任务进行适配。由此也可以理解，不同 AI 工具虽然面向的任务不同，但背后往往都依赖“基础模型能力 + 任务适配”的技术思路。ChatGPT、Codex 以及其他专用 AI 工具并不需要被简单理解为完全不同的技术体系，而可以从模型能力、任务形式和交互方式的差异上进行理解。
+
+此外，这次项目让我更加重视数据处理和训练参数的影响。分词策略会直接决定模型看到的输入形式，语料规模会影响模型能够学习到的语言模式，模型层数、上下文长度、学习率等设置也会影响训练效率和最终效果。在低算力条件下，不能盲目追求更大的模型，而需要在模型规模、数据量、训练时间和实验目标之间取得平衡。
+
+对我个人来说，这次实践也补上了过去模型训练经验中的一部分欠缺。之前在其他任务中使用过模仿学习训练机器人仿真模型，但更多依赖现成代码和 AI 辅助，对底层结构、训练循环和评估指标理解不够。本次虽然训练对象变成了语言模型，但从数据准备、模型搭建、训练调参到结果分析的思路是相通的。通过这次较完整的实践，我对模型训练流程有了更扎实的理解，也相信这些经验能够迁移到今后的其他 AI 项目中。
+
 \section*{参考文献与开源资源说明}
 \addcontentsline{toc}{section}{参考文献与开源资源说明}
-数据集
 
+\begin{enumerate}
+  \item Sebastian Raschka, \textit{Build a Large Language Model From Scratch}, Manning, 2024. 本项目在整体学习路线、小型 GPT 模型搭建、预训练和微调流程方面参考了该书的思想。
+  \item LLMs-from-scratch GitHub 项目。该开源项目为本文的小型 GPT 架构实现、训练流程设计和实验组织方式提供了参考。
+  \item PyTorch 官方文档。本文模型搭建、损失函数、优化器、Dataset 和 DataLoader 等实现参考了 PyTorch 相关说明。
+  \item A. Vaswani et al., \textit{Attention Is All You Need}, 2017. 本文关于 Transformer 和注意力机制的理论说明参考了该论文。
+  \item Hugging Face Datasets 官方文档。本文使用 TinyStories 数据集时，数据加载、缓存和本地保存流程参考了该文档。
+  \item TinyStories 数据集说明。本文预训练语料来源于 TinyStories 数据集，数据集特点和用途参考其公开说明。
+  \item tiktoken 分词工具相关资料。本文在分词方案设计中保留 GPT-2 BPE tokenizer 作为可选方案，相关实现思想参考了 tiktoken 工具说明。
+\end{enumerate}
 
+\appendix
 
-\section*{附录}
-\addcontentsline{toc}{section}{附录}
+\section{项目文件结构}
 
-\subsection*{附录 A：项目文件结构}
-\addcontentsline{toc}{subsection}{附录 A：项目文件结构}
+\begin{verbatim}
+my_tiny_gpt/
+├── mini_gpt.py
+├── tiny_tokenizer.py
+├── train_pretrain.py
+├── generate.py
+├── finetune_classifier.py
+├── train_pretrain.ps1
+├── data/
+│   ├── hf_cache/
+│   ├── TinyStories_train/
+│   ├── TinyStories_val/
+│   └── finetune_300_labeled_detailed.csv
+└── outputs/
+    ├── pretrain_result/
+    └── final_result/
 
-\subsection*{附录 B：主要运行命令}
-\addcontentsline{toc}{subsection}{附录 B：主要运行命令}
+报告/
+├── report.tex
+└── pic/
+\end{verbatim}
 
-\subsection*{附录 C：核心代码说明}
-\addcontentsline{toc}{subsection}{附录 C：核心代码说明}
+\section{主要运行命令}
 
-\subsection*{附录 D：实验结果截图清单}
-\addcontentsline{toc}{subsection}{附录 D：实验结果截图清单}
+本项目的主要程序均可在 \texttt{my\_tiny\_gpt/} 目录下运行，具体训练参数已在脚本中统一配置。
+
+\begin{verbatim}
+python mini_gpt.py
+python tiny_tokenizer.py
+.\train_pretrain.ps1
+python generate.py
+python finetune_classifier.py
+\end{verbatim}
+
+\section{主要输出文件}
+
+\textbf{预训练输出。} 预训练实验结果保存在 \texttt{outputs/pretrain\_result/} 中，主要文件包括：
+\begin{itemize}
+  \item \texttt{vocab.json}：tokenizer 词表与配置；
+  \item \texttt{args.json}：预训练运行参数；
+  \item \texttt{metrics.json}：预训练关键指标；
+  \item \texttt{pretrain\_loss.csv}：训练与验证 loss 记录；
+  \item \texttt{pretrain\_loss.png}：预训练 loss 曲线；
+  \item \texttt{pretrain\_log.txt}：预训练日志；
+  \item \texttt{pretrain\_sample.txt}：预训练模型生成样例；
+  \item \texttt{pretrain\_model\_best.pt}：验证集表现最优模型；
+  \item \texttt{pretrain\_model\_last.pt}：最后一轮模型。
+\end{itemize}
+
+\textbf{微调输出。} 微调实验结果保存在 \texttt{outputs/final\_result/} 中，主要文件包括：
+\begin{itemize}
+  \item \texttt{args.json}：微调运行参数；
+  \item \texttt{metrics.json}：微调关键指标；
+  \item \texttt{finetune\_history.csv}：微调训练历史；
+  \item \texttt{finetune\_loss.png}：微调 loss 曲线；
+  \item \texttt{finetune\_accuracy.png}：微调 accuracy 曲线；
+  \item \texttt{classification\_report.txt}：测试集分类报告；
+  \item \texttt{finetune\_predictions.csv}：测试集预测结果；
+  \item \texttt{finetune\_errors.csv}：错误样本记录；
+  \item \texttt{finetune\_classifier\_best.pt}：验证集表现最优分类模型；
+  \item \texttt{finetune\_classifier\_last.pt}：最后一轮分类模型；
+  \item \texttt{finetune\_sample.txt}：微调模型测试样例。
+\end{itemize}
+
+\section{实验结果截图清单}
+
+报告提交或展示时可补充以下截图材料：
+\begin{itemize}
+  \item 项目目录结构截图；
+  \item tokenizer 测试输出截图；
+  \item MiniGPT 模型结构测试输出截图；
+  \item 预训练运行过程截图；
+  \item 预训练 loss 曲线；
+  \item 预训练生成样例；
+  \item 微调训练曲线；
+  \item 微调分类报告或测试结果截图；
+  \item GitHub 仓库文件结构截图。
+\end{itemize}
 
 \end{document}
