@@ -317,10 +317,7 @@
 
 \subsection{GPT 类语言模型基本原理}
 
-\textbf{自回归建模思想。} GPT 类语言模型的核心任务是根据已有上下文预测下一个 token。
-文本经过分词后可表示为 token 序列 $x_1,x_2,\cdots,x_T$，模型并不是一次性生成完整文
-本，而是按照从左到右的顺序逐步建模当前位置的条件概率。对应到训练阶段，next-token
-prediction 要求模型根据前 $t$ 个 token 预测第 $t+1$ 个 token，其语言建模目标可写为：
+\textbf{自回归建模。} GPT 类语言模型属于自回归语言模型，其核心目标是根据已有上下文预测下一个 token。文本经过分词后可以表示为 token 序列 $x_1,x_2,\cdots,x_T$，模型按照从左到右的顺序逐步建模当前位置的条件概率。对应到训练阶段，模型根据前 $t$ 个 token 预测第 $t+1$ 个 token，其语言建模目标可写为：
 \begin{equation}
 \begin{aligned}
 P(x_1,x_2,\cdots,x_T)
@@ -331,15 +328,9 @@ P(x_1,x_2,\cdots,x_T)
 \end{aligned}
 \label{eq:language_modeling_objective}
 \end{equation}
-式中，第一行表示自回归概率分解，第二行表示下一个 token 预测任务中的平均交叉熵损失。
+式中，第一行表示自回归概率分解，第二行表示下一个 token 预测任务中的平均交叉熵损失。这一目标直接决定了后文预训练样本的构造方式：每个训练样本需要包含一段输入序列，并将该序列整体右移一位作为目标序列，使模型在每个位置都学习预测下一个 token。
 
-\textbf{Decoder-only 结构。} 为了服务于从左到右的生成目标，GPT 采用 Decoder-only
-Transformer 结构，并通过因果遮罩限制每个位置只能使用当前位置及其之前的信息。这样，
-模型在训练时不会提前看到未来 token，在推理时也可以不断把新生成的 token 拼接回上下文，
-继续预测后续内容。本文实现的 MiniGPT 是该结构的小型化版本，保留词嵌入（token embedding）、
-位置嵌入（position embedding）、因果自注意力、前馈网络、残差连接和 LayerNorm 等关键组件，但通过
-较小的层数、嵌入维度和上下文长度降低训练成本。图~\ref{fig:llm_overall_structure} 给出了
-大语言模型从文本输入到模型输出的整体结构关系，可作为后续 MiniGPT 实现流程的概念参考。
+\textbf{Decoder-only 结构。} 为了服务于从左到右的生成目标，GPT 采用 Decoder-only Transformer 结构，并通过因果遮罩限制每个位置只能使用当前位置及其之前的信息。这样，模型在训练时不会提前看到未来 token，在推理时也可以不断把新生成的 token 拼接回上下文，继续预测后续内容。本文实现的 MiniGPT 是该结构的小型化版本，保留词嵌入（token embedding）、位置嵌入（position embedding）、因果自注意力、前馈网络、残差连接和 LayerNorm 等关键组件，但通过较小的层数、嵌入维度和上下文长度降低训练成本。图~\ref{fig:llm_overall_structure} 给出了大语言模型从文本输入到模型输出的整体结构关系，可作为后续 MiniGPT 实现流程的概念参考。
 
 \begin{figure}[!htbp]
   \centering
@@ -348,34 +339,22 @@ Transformer 结构，并通过因果遮罩限制每个位置只能使用当前�
   \label{fig:llm_overall_structure}
 \end{figure}
 
-\subsection{文本分词与输入表示}
+\subsection{训练数据准备与文本表示}
 
-\textbf{分词器的作用。} 神经网络不能直接处理原始字符串，因此文本需要先经过分词器
-（tokenizer）转换为 token，再映射为整数形式的 token id。分词器主要完成文本切分、词表构
-建、编码和解码：编码将文本转为模型输入，解码则将模型生成的 token id 还原为可读文本。
-本文保留 \texttt{SimpleRegexTokenizer} 和 \texttt{GPT2Tokenizer} 两种实现，前者面向低算力
-小模型实验，后者作为更接近真实 GPT 系列子词分词方式的可选方案。预训练语料中使用
-\texttt{<|endoftext|>} 作为故事边界标记，具体数据拼接、缓存、分词器对比和样本构造过程
-放在第四章说明。
+\textbf{训练语料选择。} 语言模型的训练效果不仅取决于模型结构，也与语料组织方式密切相关。单篇长文本虽然也可以用于预训练，但内容风格和上下文通常更单一，小模型容易集中学习局部文本模式；多个短文本样本则能提供更多独立场景、人物关系和句式变化，更适合低算力条件下的小参数量模型学习基础语言规律。TinyStories 数据集由大量短篇英文故事构成，句式相对简单、主题清晰、情节结构明确，因此适合作为本文 MiniGPT 预训练的语料来源。即使后续将多个故事拼接为连续训练文本，这些故事片段仍然保持相对独立，能够增加训练样本的多样性。
 
-\textbf{输入表示。} 得到 token id 后，模型还需要将离散编号映射为连续向量。GPT 的输入
-表示由词嵌入和位置嵌入相加得到：
+\textbf{文本字段与分词。} 数据集中的 \texttt{text} 字段只是 Hugging Face 样本中存放原始故事文本的字段名，表示程序读取到的是一条故事的原始字符串，并不表示按字符、按单词或按子词读取。真正决定文本如何被切分的是分词器（tokenizer）。一般而言，字符级分词实现简单、词表较小，但生成时容易出现碎词；基于正则的词和标点分词能够保留较完整的英文单词，词表规模相对可控；BPE 子词分词泛化能力更强，更接近真实 GPT 类模型常用方案，但词表通常更大，会增加小模型输出层参数量和低算力训练开销。综合生成可读性、词表规模、训练速度和 CPU 单机条件，本文最终采用正则分词器作为主实验方案，并保留 GPT-2 BPE 分词器作为可选实现。
+
+\textbf{输入表示。} 得到 token id 后，模型还需要将离散编号映射为连续向量。GPT 的输入表示由词嵌入和位置嵌入相加得到：
 \begin{equation}
 \mathbf{h}_0 = \mathbf{E}_{\mathrm{tok}}(\mathbf{x}) + \mathbf{E}_{\mathrm{pos}}(\mathbf{p}) .
 \label{eq:gpt_input_embedding}
 \end{equation}
-其中，$\mathbf{x}$ 表示 token id 序列，$\mathbf{p}$ 表示位置编号序列。词嵌入
-提供 token 本身的语义表示，位置嵌入提供顺序信息，二者共同构成 Transformer 模块
-的输入。
+其中，$\mathbf{x}$ 表示 token id 序列，$\mathbf{p}$ 表示位置编号序列。词嵌入提供 token 本身的语义表示，位置嵌入提供顺序信息，二者共同构成 Transformer 模块的输入。
 
-\subsection{Transformer 核心机制}
+\subsection{Transformer 核心结构与小模型配置}
 
-\textbf{Transformer 模块的作用。} GPT 的主体由多层 Transformer 模块堆叠而成。
-Transformer 模块通过因果自注意力建模上下文关系，再通过前馈网络进行非线性变换，并
-使用残差连接和 LayerNorm 稳定训练。对本文项目而言，需要重点理解的是：自注意力让模型
-能够从上下文中选择相关信息，因果遮罩保证模型不能看到未来 token，多层堆叠则逐步形成
-更高层次的文本表示。图~\ref{fig:transformer_core_structure} 展示了 Transformer 模块中
-注意力、前馈网络以及残差归一化结构之间的关系。
+\textbf{Transformer 模块。} GPT 的主体由多层 Transformer 模块堆叠而成。Transformer 模块通过因果自注意力建模上下文关系，再通过前馈网络进行非线性变换，并使用残差连接和 LayerNorm 稳定训练。对本文项目而言，需要重点理解的是：自注意力让模型能够从上下文中选择相关信息，因果遮罩保证模型不能看到未来 token，多层堆叠则逐步形成更高层次的文本表示。图~\ref{fig:transformer_core_structure} 展示了 Transformer 模块中注意力、前馈网络以及残差归一化结构之间的关系。
 
 \begin{figure}[!htbp]
   \centering
@@ -384,8 +363,7 @@ Transformer 模块通过因果自注意力建模上下文关系，再通过前�
   \label{fig:transformer_core_structure}
 \end{figure}
 
-\textbf{因果自注意力机制。} 注意力计算通常由 Query、Key 和 Value 三组向量完成。在 GPT
-中，为了满足自回归生成约束，需要在注意力分数中加入因果遮罩矩阵 $\mathbf{M}$：
+\textbf{因果自注意力。} 注意力计算通常由 Query、Key 和 Value 三组向量完成。在 GPT 中，为了满足自回归生成约束，需要在注意力分数中加入因果遮罩矩阵 $\mathbf{M}$：
 \begin{equation}
 \mathrm{Attention}(\mathbf{Q},\mathbf{K},\mathbf{V})
 =
@@ -394,21 +372,34 @@ Transformer 模块通过因果自注意力建模上下文关系，再通过前�
 \right)\mathbf{V}.
 \label{eq:causal_attention}
 \end{equation}
-其中，$\mathbf{M}$ 表示因果遮罩矩阵，未来位置对应的注意力分数被置为负无穷，从而避免
-模型看到未来 token。多头注意力则是在多个子空间中并行执行上述注意力计算，使模型能够
-从不同角度捕捉上下文关系。
+其中，$\mathbf{M}$ 表示因果遮罩矩阵，未来位置对应的注意力分数被置为负无穷，从而避免模型看到未来 token。多头注意力则是在多个子空间中并行执行上述注意力计算，使模型能够从不同角度捕捉上下文关系。
+
+\textbf{模型规模与算力约束。} 在低算力实验中，模型层数、嵌入维度、注意力头数、上下文长度和 batch size 都会影响训练成本。层数和嵌入维度越大，模型表达能力通常越强，但计算量和参数量也会增加；上下文长度越长，注意力计算开销越高；batch size 越大，对内存和显存的要求也越高。因此，本文的小型 MiniGPT 保留 GPT 的核心机制，但通过减小层数、隐藏维度和上下文长度来适配 CPU 单机训练。具体模型参数与实验设置放在第三章和第四章展开。
 
 \subsection{预训练与微调机制}
 
-\textbf{预训练。} 预训练使用无标签文本作为数据来源，通过 next-token prediction 让模型
-学习通用语言模式。本项目的预训练阶段对应 TinyStories 语料，目标是让小型 MiniGPT 在有
-限数据和算力条件下学习基本英文短故事中的局部上下文关系。预训练结果主要通过训练损失、
-验证损失、perplexity 以及生成样例进行观察，具体实验设置和结果放在第四章展开。
+\textbf{预训练。} 预训练使用无标签文本作为数据来源，通过 next-token prediction 让模型学习通用语言模式。本项目的预训练阶段对应 TinyStories 语料，目标是让小型 MiniGPT 在有限数据和算力条件下学习基本英文短故事中的局部上下文关系。预训练结果主要通过训练损失、验证损失、perplexity 以及生成样例进行观察，具体实验设置和结果放在第四章展开。
 
-\textbf{微调。} 微调是在预训练模型基础上，使用带标签或具有明确任务格式的数据继续训练，
-使模型适应具体任务。与预训练关注通用语言规律不同，微调更关注任务目标，例如文本分类
-或问答。本文后续微调实验会在预训练 MiniGPT 的基础上构建简单监督任务，相关分类头设计、
-损失函数和评价指标放在第五章说明。
+\textbf{微调。} 微调是在预训练模型基础上，使用带标签或具有明确任务格式的数据继续训练，使模型适应具体任务。与预训练关注通用语言规律不同，微调更关注任务目标，例如文本分类或问答。对于分类微调而言，GPT 主体输出的是每个 token 对应的隐藏状态，还需要将 token 级表示进一步聚合成文本级表示，再输入分类头。常见聚合方式包括使用最后一个有效 token 的隐藏状态、平均池化和最大池化等；具体选择需要结合任务特点确定，本文的分类微调策略放在第五章展开。
+
+\begin{table}[!htbp]
+  \centering
+  \caption{从零构建小型 GPT 模型涉及的关键知识点}
+  \label{tab:llm_key_points}
+  \renewcommand{\arraystretch}{1.2}
+  \small
+  \begin{tabular}{L{2.7cm}L{4.8cm}L{5.7cm}}
+    \toprule
+    环节 & 关键知识点 & 本项目对应内容 \\
+    \midrule
+    数据准备 & 语料选择、文本清洗、样本组织 & TinyStories 短故事语料 \\
+    文本表示 & 分词、词表、token id、词嵌入、位置嵌入 & 正则分词器与 MiniGPT 输入表示 \\
+    模型架构 & Decoder-only、因果注意力、前馈网络、残差连接 & 小参数量 MiniGPT \\
+    预训练 & next-token prediction、loss、perplexity & TinyStories 预训练实验 \\
+    微调 & 监督数据、任务适配、分类头、评价指标 & 故事结局倾向二分类 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{小型 GPT 模型设计与实现}
 
@@ -548,17 +539,24 @@ $[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$ 的 logits，从
 \textbf{数据集划分。} 本实验采用 Hugging Face 上的 TinyStories 数据集作为预训练语料。
 该数据集由大量简短英文故事组成，语言结构相对简单，包含常见人物、动作、对话和基础叙
 事关系，适合小参数量 GPT 模型学习基本英文故事生成模式。实验中选取训练集切片
-\texttt{train[:5000]} 和验证集切片 \texttt{validation[:500]}，读取字段为 \texttt{text}。
-这种规模既能提供较为丰富的短故事文本，又不会使 CPU 单机训练时间过长，符合低算力课程
+\texttt{train[:5000]} 和验证集切片 \texttt{validation[:500]}，并读取每条样本中的
+\texttt{text} 字段作为原始语料。这里的 \texttt{text} 是数据集中存放故事正文的字段名，表示
+一条样本的原始文本内容，并不涉及字符级、词级或子词级分词；真正的文本切分工作由后续
+分词器完成。
+
+相比单篇长文本，TinyStories 提供了大量相对独立、语言简单的短故事，能够在较小数据规模
+下提供更多情节和句式变化，更适合小参数量模型在低算力条件下学习基础英文叙事模式。单
+篇长文本虽然也可以用于预训练，但内容风格和上下文更单一，小模型容易学习到局部文本模
+式。多个短故事拼接后仍然能形成连续训练序列，同时保留故事样本的多样性，因此更符合本
 实验的目标。
 
 \textbf{文本拼接与清洗。} 程序读取每条故事文本后，将多条故事拼接为连续语料，并在不同
-故事之间加入 \texttt{<|endoftext|>} 作为分隔标记，用于表示故事边界。正则分词器将该标记
-作为完整特殊 token 处理，避免其被拆成多个无意义片段，有助于模型区分相邻故事之间的边界。
-文本清洗主要包括
-统一 Windows 和 Linux 换行、去除行尾多余空格、压缩连续空行等基础操作。为了便于重复实
-验，程序设置了 Hugging Face 数据缓存目录，但报告正文不展开具体本地路径，相关文件统一
-作为实验输出管理。
+故事之间加入故事结束标记，用于区分相邻故事的边界。该标记在代码中表示为
+\texttt{<|endoftext|>}，它并不是普通英文单词，而是用于提示模型当前故事已经结束、下一段
+文本属于新的故事。这样做不是为了把多个故事当成同一段真实连续情节，而是为了形成可训
+练的 token 序列，同时避免模型把两个独立故事误认为同一段连续内容。正则分词器将故事结
+束标记作为完整特殊 token 处理，有助于模型识别不同故事之间的边界。文本清洗主要包括统
+一 Windows 和 Linux 换行、去除行尾多余空格、压缩连续空行等基础操作。
 
 \begin{table}[!htbp]
   \centering
@@ -771,7 +769,7 @@ They look at least and Ben were happy. They looked for his lesson that they had 
 
 \subsection{微调策略与程序设计}
 
-微调模型在预训练 MiniGPT 主体后增加一个线性分类头，而不改变原有 GPT 主体结构。输入文本依次经过词嵌入、位置嵌入、Transformer 模块和最终归一化层后，得到每个 token 的隐藏状态。分类任务需要整段文本的表示，因此本文采用平均池化（mean pooling）将所有有效 token 的隐藏状态合成为文本级向量，再送入线性分类头，输出 \texttt{negative} 和 \texttt{positive} 两个类别的 logits。训练目标使用交叉熵损失。
+微调模型在预训练 MiniGPT 主体后增加一个线性分类头，而不改变原有 GPT 主体结构。输入文本依次经过词嵌入、位置嵌入、Transformer 模块和最终归一化层后，得到每个 token 的隐藏状态。由于分类任务需要得到整段文本的表示，因此需要对 token 级隐藏状态进行聚合。常见方式包括使用最后一个有效 token 的隐藏状态、对所有有效 token 进行平均池化，或采用最大池化等。最后一个 token 表示更依赖序列末尾信息，对于自回归生成较自然；但故事结局倾向判断往往依赖整段结尾中的多个词句，而不仅是最后一个 token。因此，本文采用平均池化（mean pooling）获得文本级表示，并在池化时排除 padding 位置。该表示随后输入线性分类头，用于输出 \texttt{negative} 和 \texttt{positive} 两个类别的 logits。训练目标使用交叉熵损失。
 
 在初始化方式上，微调程序加载预训练阶段验证集表现最优的 MiniGPT 参数，并复用预训练阶段的分词器和词表，从而保证预训练与微调阶段的 token 编码方式一致。参数更新策略上，本文最终采用全参数微调（full fine-tuning），即 MiniGPT 主体与分类头全部参与更新。这样做的原因是本项目中的 MiniGPT 规模较小，仅包含 2 层 Transformer 模块，若只训练分类头或最后一层，模型对下游分类任务的适配能力会受到限制。
 
