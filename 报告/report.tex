@@ -315,55 +315,147 @@
 
 \section{大语言模型相关理论基础与关键知识点}
 
-\subsection{GPT 类语言模型基本原理}
+\subsection{从零构建语言模型的基本流程}
 
-\textbf{自回归建模。} GPT 类语言模型属于自回归语言模型，其核心目标是根据已有上下文预测下一个 token。文本经过分词后可以表示为 token 序列 $x_1,x_2,\cdots,x_T$，模型按照从左到右的顺序逐步建模当前位置的条件概率。对应到训练阶段，模型根据前 $t$ 个 token 预测第 $t+1$ 个 token，其语言建模目标可写为：
-\begin{equation}
-\begin{aligned}
-P(x_1,x_2,\cdots,x_T)
-&=\prod_{t=1}^{T}P(x_t\mid x_{<t}),\\
-\mathcal{L}_{\mathrm{LM}}
-&=-\frac{1}{T-1}\sum_{t=1}^{T-1}
-\log P(x_{t+1}\mid x_{\leq t}) .
-\end{aligned}
-\label{eq:language_modeling_objective}
-\end{equation}
-式中，第一行表示自回归概率分解，第二行表示下一个 token 预测任务中的平均交叉熵损失。这一目标直接决定了后文预训练样本的构造方式：每个训练样本需要包含一段输入序列，并将该序列整体右移一位作为目标序列，使模型在每个位置都学习预测下一个 token。
-
-\textbf{Decoder-only 结构。} 为了服务于从左到右的生成目标，GPT 采用 Decoder-only Transformer 结构，并通过因果遮罩限制每个位置只能使用当前位置及其之前的信息。这样，模型在训练时不会提前看到未来 token，在推理时也可以不断把新生成的 token 拼接回上下文，继续预测后续内容。本文实现的 MiniGPT 是该结构的小型化版本，保留词嵌入（token embedding）、位置嵌入（position embedding）、因果自注意力、前馈网络、残差连接和 LayerNorm 等关键组件，但通过较小的层数、嵌入维度和上下文长度降低训练成本。图~\ref{fig:llm_overall_structure} 给出了大语言模型从文本输入到模型输出的整体结构关系，可作为后续 MiniGPT 实现流程的概念参考。
+从零构建 GPT 类语言模型，通常不是单独完成某一个模型文件，而是一个从数据到训练、再到任务适配的完整流程。首先需要收集和整理训练语料，对原始文本进行必要清洗；随后通过分词器将文本转换为 token 序列，并建立词表和 token id 映射；接着，模型将离散 token id 转换为向量表示，送入 Decoder-only Transformer 架构；在预训练阶段，模型通过预测下一个 token 学习通用语言模式；在微调阶段，模型再根据具体任务形式和带标签数据进行适配。
+上述流程对应了本报告后续章节的组织方式：第三章关注模型结
+构如何实现，第四章关注预训练数据与训练过程，第五章关注
+下游任务微调。本章则主要梳理这些环节背后的通用知识点，为
+后文实验提供理论基础。
+语言模型构建的基本流程如图~\ref{fig:LLM_building_procedure}所示。
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=0.92\textwidth,height=5.8cm,keepaspectratio]{pic/structure_of_llm.jpg}
-  \caption{大语言模型整体结构示意图}
-  \label{fig:llm_overall_structure}
+  \includegraphics[width=0.85\textwidth]{pic/procedure.png}
+  \caption{LLM构建基本流程图}
+  \label{fig:LLM_building_procedure}
 \end{figure}
 
 \subsection{训练数据准备与文本表示}
 
-\textbf{训练语料选择。} 语言模型的训练效果不仅取决于模型结构，也与语料组织方式密切相关。单篇长文本虽然也可以用于预训练，但内容风格和上下文通常更单一，小模型容易集中学习局部文本模式；多个短文本样本则能提供更多独立场景、人物关系和句式变化，更适合低算力条件下的小参数量模型学习基础语言规律。TinyStories 数据集由大量短篇英文故事构成，句式相对简单、主题清晰、情节结构明确，因此适合作为本文 MiniGPT 预训练的语料来源。即使后续将多个故事拼接为连续训练文本，这些故事片段仍然保持相对独立，能够增加训练样本的多样性。
+训练数据准备的基本流程如图~\ref{fig:data_preparation} 所示。整体上，原始语料需要依次经过清洗与划分、分词编码、样本构造和批量加载，才能成为 GPT 类模型可以接收的输入。
 
-\textbf{文本字段与分词。} 数据集中的 \texttt{text} 字段只是 Hugging Face 样本中存放原始故事文本的字段名，表示程序读取到的是一条故事的原始字符串，并不表示按字符、按单词或按子词读取。真正决定文本如何被切分的是分词器（tokenizer）。一般而言，字符级分词实现简单、词表较小，但生成时容易出现碎词；基于正则的词和标点分词能够保留较完整的英文单词，词表规模相对可控；BPE 子词分词泛化能力更强，更接近真实 GPT 类模型常用方案，但词表通常更大，会增加小模型输出层参数量和低算力训练开销。综合生成可读性、词表规模、训练速度和 CPU 单机条件，本文最终采用正则分词器作为主实验方案，并保留 GPT-2 BPE 分词器作为可选实现。
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.47\textwidth]{pic/文本处理2.png}
+  \caption{训练数据准备与文本表示流程图}
+  \label{fig:data_preparation}
+\end{figure}
 
-\textbf{输入表示。} 得到 token id 后，模型还需要将离散编号映射为连续向量。GPT 的输入表示由词嵌入和位置嵌入相加得到：
+\textbf{训练语料。} 数据准备并不只是“找到一段文本”，而是从零构建语言模型的基础环节。语言模型通过大量文本学习词语搭配、句式结构和上下文规律，因此语料的规模、质量、领域、风格和多样性都会影响模型能力。单一文本可以用于验证训练流程，但泛化能力有限；多来源、多文档语料能够提供更丰富的语言模式，有助于模型学习更稳定的统计规律。数据准备阶段的选择还会进一步影响后续分词、样本构造和预训练效果。
+
+\textbf{文本清洗与数据划分。} 原始文本通常存在格式不统一、异常字符、空行过多或重复内容等问题，训练前需要进行适当清洗，例如统一换行格式、去除无效字符、压缩多余空白以及处理重复片段。为了判断模型是否真正学习到一般规律，而不是只记住训练文本，语料通常需要划分为训练集和验证集。如果训练集与验证集混淆，可能造成数据泄漏，使验证结果偏乐观。对于由多个文档组成的语料，还需要保留文档边界信息，避免模型把两个无关文本误认为连续上下文。
+
+\textbf{分词、词表与特殊标记。} 原始文本不能直接输入神经网络，需要先通过分词器（tokenizer）切分为 token，再由词表映射为整数形式的 token id。token id 是模型在嵌入层之前接收的离散输入，但它本身只是整数编号，并不直接表示语义关系。图~\ref{fig:tokenization_process} 展示了文本从原始字符串转换为 token id 的基本过程。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{pic/分词.png}
+  \caption{文本输入转换流程图}
+  \label{fig:tokenization_process}
+\end{figure}
+
+分词粒度会同时影响词表大小和序列长度：粒度越细，词表通常越小，但序列更长；粒度越粗，序列可能更短，但词表更大，也更容易遇到未登录词问题。实际语料中还需要使用特殊 token 表示额外信息，例如文本结束、未知词或填充（padding）位置等。在多文档拼接场景中，文本结束标记可以提示模型一个文本片段已经结束；在批量训练或分类池化时，填充位置通常不应参与有效语义建模。
+
+\begin{table}[!htbp]
+  \centering
+  \caption{常见分词策略对比}
+  \label{tab:tokenizer_strategy_compare}
+  \renewcommand{\arraystretch}{1.2}
+  \small
+  \begin{tabular}{L{2.5cm}L{3.7cm}L{3.4cm}L{3.4cm}}
+    \toprule
+    分词方式 & 基本思想 & 优点 & 局限 \\
+    \midrule
+    字符级分词 & 以单个字符作为基本 token & 实现简单，词表很小 & 序列较长，生成可读性较差 \\
+    词级或规则分词 & 按单词、数字、标点等规则切分 & 能保留较完整单词，含义直观 & 对未登录词和复杂词形泛化不足 \\
+    BPE 子词分词 & 将常见字符组合逐步合并为子词 & 兼顾词表规模和泛化能力 & 词表和实现相对复杂，小模型开销可能较大 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+表~\ref{tab:tokenizer_strategy_compare} 对几类常见分词策略进行了概括。真实大语言模型常采用 BPE 或类似子词方法，以兼顾开放词表能力和输入效率；在小规模实验中，也可以根据语料规模、模型参数量和训练条件选择更简单的分词方案。具体到本文实验所采用的分词器，将在第四章结合预训练语料和模型规模进行说明。
+
+\textbf{训练样本构造。} 分词和编码后，长文本会变成一条 token id 序列。语言模型通常不会把任意长度的整篇文本一次性送入模型，而是按照固定上下文长度切分为多个训练样本。常见方法是使用滑动窗口从长序列中抽取片段：每个样本的输入是一段连续 token 序列，目标序列则是输入序列整体右移一位，使模型在每个位置学习预测下一个 token。若上下文长度为 $L$，则第 $i$ 个窗口可表示为：
 \begin{equation}
-\mathbf{h}_0 = \mathbf{E}_{\mathrm{tok}}(\mathbf{x}) + \mathbf{E}_{\mathrm{pos}}(\mathbf{p}) .
+\mathbf{x}=(x_i,x_{i+1},\cdots,x_{i+L-1}),\quad
+\mathbf{y}=(x_{i+1},x_{i+2},\cdots,x_{i+L}) .
+\label{eq:sliding_window_sample}
+\end{equation}
+其中，$\mathbf{x}$ 为模型输入，$\mathbf{y}$ 为预测目标。窗口步长（stride）决定相邻样本之间的重叠程度：步长较小可以产生更多样本，但相邻样本高度重叠，训练开销更大，也可能增加过拟合风险；步长接近上下文长度时样本重叠较少，训练更高效，但样本数量相对减少。图~\ref{fig:sliding_window} 给出了滑动窗口样本构造示意。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.65\textwidth]{pic/滑动窗口.png}
+  \caption{滑动窗口样本构造示意图}
+  \label{fig:sliding_window}
+\end{figure}
+
+\subsection{GPT 类模型架构与关键配置}
+
+\subsubsection{Decoder-only Transformer 架构。} 
+
+Transformer 的原始结构包含编码器和解码器两部分，而 GPT 类
+模型主要采用解码器部分，形成 Decoder-only Transformer 架
+构。该架构适合从左到右的自回归文本生成任务：模型在当前位置
+进行预测时，只能利用已经出现的历史上下文。与双向理解类模型
+不同，GPT 不能同时查看当前位置左右两侧的信息，因果遮罩正是
+为了保证这种单向建模约
+束。图~\ref{fig:llm_overall_structure} 给出了 GPT 类语言
+模型从文本输入到预测分数（logits）输出的一般流程。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=5.8cm,keepaspectratio]{pic/structure_of_llm.jpg}
+  \caption{GPT 类语言模型基本流程图}
+  \label{fig:llm_overall_structure}
+\end{figure}
+
+\subsubsection{模型内部模块}
+
+\textbf{输入表示与嵌入层。} 经过分词和编码后，文本已经被表示为 token id 序列，但 token id 本身只是词表中的整数编号，编号大小并不表示语义距离。因此，GPT 类模型需要通过词嵌入（token embedding）将离散编号映射为连续向量。设词表大小为 $V$，嵌入维度为 $d$，词嵌入矩阵可表示为 $\mathbf{E}_{\mathrm{tok}}\in\mathbb{R}^{V\times d}$。对于序列中第 $t$ 个 token id $x_t$，词嵌入操作可以看作从矩阵中查找对应行向量，即 $\mathbf{e}_t=\mathbf{E}_{\mathrm{tok}}[x_t]$。在训练过程中，词嵌入矩阵会随着反向传播不断更新，使模型逐渐学习不同 token 在上下文中的表示关系。
+
+仅有词嵌入还不足以表示文本序列。由于 Transformer 本身不像循环神经网络那样天然具有顺序建模能力，模型还需要位置嵌入（position embedding）来表示 token 在序列中的位置。若最大上下文长度为 $L$，位置嵌入矩阵可表示为 $\mathbf{E}_{\mathrm{pos}}\in\mathbb{R}^{L\times d}$。因此，第 $t$ 个位置的初始输入表示为：
+\begin{equation}
+\mathbf{h}^{(0)}_t
+=
+\mathbf{E}_{\mathrm{tok}}[x_t]
++
+\mathbf{E}_{\mathrm{pos}}[t] .
+\label{eq:gpt_input_embedding_single}
+\end{equation}
+对于整个输入序列，词嵌入和位置嵌入相加后得到初始隐藏表示：
+\begin{equation}
+\mathbf{H}^{(0)}
+=
+\mathbf{E}_{\mathrm{tok}}(\mathbf{x})
++
+\mathbf{E}_{\mathrm{pos}}(\mathbf{p}) .
 \label{eq:gpt_input_embedding}
 \end{equation}
-其中，$\mathbf{x}$ 表示 token id 序列，$\mathbf{p}$ 表示位置编号序列。词嵌入提供 token 本身的语义表示，位置嵌入提供顺序信息，二者共同构成 Transformer 模块的输入。
+其中，$\mathbf{x}$ 表示 token id 序列，$\mathbf{p}$ 表示位置编号序列。这样，模型既能获得“当前 token 是什么”的内容信息，也能获得“当前 token 位于哪里”的顺序信息。
 
-\subsection{Transformer 核心结构与小模型配置}
-
-\textbf{Transformer 模块。} GPT 的主体由多层 Transformer 模块堆叠而成。Transformer 模块通过因果自注意力建模上下文关系，再通过前馈网络进行非线性变换，并使用残差连接和 LayerNorm 稳定训练。对本文项目而言，需要重点理解的是：自注意力让模型能够从上下文中选择相关信息，因果遮罩保证模型不能看到未来 token，多层堆叠则逐步形成更高层次的文本表示。图~\ref{fig:transformer_core_structure} 展示了 Transformer 模块中注意力、前馈网络以及残差归一化结构之间的关系。
+\textbf{Transformer 模块堆叠。} GPT 类模型的主体并不是由许多完全不同的模块杂糅拼接而成，而是将结构相似的 Transformer 模块重复堆叠。每个 Transformer 模块通常包含两个主要子层：因果多头自注意力子层和前馈网络子层。注意力子层负责在不同 token 之间传递上下文信息，前馈网络子层负责对每个位置的隐藏表示进行非线性变换。多个模块逐层堆叠后，模型可以不断更新每个 token 的上下文表示，从而形成更抽象的语言特征。Decoder-only Transformer 模块的典型结构如图~\ref{fig:transformer_core_structure} 所示。
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.90\textwidth,height=6.2cm,keepaspectratio]{pic/structure_of_transformer.jpg}
-  \caption{Transformer 核心结构示意图}
+  \caption{Decoder-only Transformer 模块结构图}
   \label{fig:transformer_core_structure}
 \end{figure}
 
-\textbf{因果自注意力。} 注意力计算通常由 Query、Key 和 Value 三组向量完成。在 GPT 中，为了满足自回归生成约束，需要在注意力分数中加入因果遮罩矩阵 $\mathbf{M}$：
+\textbf{因果多头自注意力。} 自注意力机制的作用不是简单地“查看上下文”，而是为序列中每个位置重新构造一个上下文相关的表示。对于某个位置的 token，模型会计算它与其他可见位置之间的相关程度；这些相关程度经过 softmax 归一化后形成注意力权重；随后模型根据这些权重对其他位置的信息进行加权求和，得到该位置的上下文向量。这样，每个 token 的表示不再只包含自身信息，而是能够融合其上下文关系。
+
+在带可训练参数的自注意力中，输入隐藏状态会通过线性变换得到 Query、Key 和 Value 三类向量。若某一层输入隐藏表示为 $\mathbf{H}$，则可写为 $\mathbf{Q}=\mathbf{H}\mathbf{W}_Q$、$\mathbf{K}=\mathbf{H}\mathbf{W}_K$、$\mathbf{V}=\mathbf{H}\mathbf{W}_V$。其中，Query 可以理解为当前位置发出的“查询”，表示当前位置希望查找什么上下文信息；Key 表示各位置可供匹配的特征；Value 则表示最终被汇总的信息内容。Query 与 Key 的点积用于计算注意力分数，分数越高，表示当前位置越需要关注对应位置；经过 softmax 归一化后得到注意力权重，再对 Value 加权求和，形成上下文表示。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.60\textwidth]{pic/注意力机制示意图.png}
+  \caption{ 注意力机制示意图}
+  \label{fig:causal_attention}
+\end{figure}
+
+在 GPT 中，为了防止模型看到待预测 token 之后的信息，需要在注意力分数中加入因果遮罩矩阵 $\mathbf{M}$。因果注意力的核心计算形式为：
 \begin{equation}
 \mathrm{Attention}(\mathbf{Q},\mathbf{K},\mathbf{V})
 =
@@ -372,34 +464,294 @@ P(x_1,x_2,\cdots,x_T)
 \right)\mathbf{V}.
 \label{eq:causal_attention}
 \end{equation}
-其中，$\mathbf{M}$ 表示因果遮罩矩阵，未来位置对应的注意力分数被置为负无穷，从而避免模型看到未来 token。多头注意力则是在多个子空间中并行执行上述注意力计算，使模型能够从不同角度捕捉上下文关系。
+其中，$\mathbf{Q}\mathbf{K}^{\mathrm{T}}$ 得到不同位置之间
+的注意力分数；除以 $\sqrt{d_k}$ 是缩放操作，用于避免向量维度
+较大时点积分数过大，使 softmax 过于集中，从而影响梯度稳定
+性；$\mathbf{M}$ 表示因果遮罩矩阵，用于屏蔽未来位置；softmax
+后得到注意力权重，再与 Value 相乘得到上下文表示。
 
-\textbf{模型规模与算力约束。} 在低算力实验中，模型层数、嵌入维度、注意力头数、上下文长度和 batch size 都会影响训练成本。层数和嵌入维度越大，模型表达能力通常越强，但计算量和参数量也会增加；上下文长度越长，注意力计算开销越高；batch size 越大，对内存和显存的要求也越高。因此，本文的小型 MiniGPT 保留 GPT 的核心机制，但通过减小层数、隐藏维度和上下文长度来适配 CPU 单机训练。具体模型参数与实验设置放在第三章和第四章展开。
+在实现上，因果遮罩通常加在 softmax 之前的注意力分数上，将未来
+位置的分数置为负无穷。这样经过 softmax 后，未来位置的权重
+接近 $0$，而当前位置之前的可见位置仍然能够形成归一化的权重
+分布。这一处理保证了 GPT 在训练和生成时都只能利用历史上下
+文。在训练过程中，还可以在注意力权重或注意力输出上使用 
+Dropout，以减少模型对个别位置的过度依赖，提高训练鲁棒性。
 
-\subsection{预训练与微调机制}
+多头注意力并不是对同一注意力过程的简单重复，而是通过多组不同的线性投影，在多个表示子空间中并行建模上下文关系。若共有 $h$ 个注意力头，则第 $i$ 个头可写为 $\mathrm{head}_i=\mathrm{Attention}(\mathbf{Q}_i,\mathbf{K}_i,\mathbf{V}_i)$。多个头的输出会被拼接并再次线性映射：
+\begin{equation}
+\mathrm{MultiHead}(\mathbf{Q},\mathbf{K},\mathbf{V})
+=
+\mathrm{Concat}(\mathrm{head}_1,\mathrm{head}_2,\cdots,\mathrm{head}_h)\mathbf{W}_O .
+\label{eq:multi_head_attention}
+\end{equation}
+不同注意力头可能关注不同类型的信息，例如局部词语搭配、句子内部结构，或距离较远但语义相关的位置。多个头的结果拼接后再经过线性投影，使模型获得更丰富的上下文表示。
 
-\textbf{预训练。} 预训练使用无标签文本作为数据来源，通过 next-token prediction 让模型学习通用语言模式。本项目的预训练阶段对应 TinyStories 语料，目标是让小型 MiniGPT 在有限数据和算力条件下学习基本英文短故事中的局部上下文关系。预训练结果主要通过训练损失、验证损失、perplexity 以及生成样例进行观察，具体实验设置和结果放在第四章展开。
+\textbf{前馈网络、残差连接与层归一化。} 注意力层负责在不同 to
+ken 之间传递上下文信息，而前馈网络主要作用于每个位置自身的隐藏
+表示，不负责不同 token 之间的信息交换。GPT 类模型中的前馈网络
+一般采用“升维—激活—降维”的结构：先将隐藏表示映射到更高维空间，
+再通过非线性激活函数和线性映射回到原维度，从而增强模型表达能力
+。其基本形式
+可写为 $\mathrm{FFN}(\mathbf{x})=\mathbf{W}_2\,\sigma(\mathbf{W}_1\mathbf{x}+\mathbf{b}_1)+\mathbf{b}_2$，其中 $\sigma(\cdot)$ 表示非线
+性激活函数。GELU 是 GPT 类模型中常用的平滑激活函数，常写
+作 $\mathrm{GELU}(z)=z\Phi(z)$，其中 $\Phi(\cdot)$ 表示标准
+正态分布的累积分布函数。相比简单线性变换，GELU 能够增强模型表
+达非线性关系的能力。
+激活函数GELU的函数曲线如图~\ref{fig:transformer_activation}所示。
 
-\textbf{微调。} 微调是在预训练模型基础上，使用带标签或具有明确任务格式的数据继续训练，使模型适应具体任务。与预训练关注通用语言规律不同，微调更关注任务目标，例如文本分类或问答。对于分类微调而言，GPT 主体输出的是每个 token 对应的隐藏状态，还需要将 token 级表示进一步聚合成文本级表示，再输入分类头。常见聚合方式包括使用最后一个有效 token 的隐藏状态、平均池化和最大池化等；具体选择需要结合任务特点确定，本文的分类微调策略放在第五章展开。
-
-\begin{table}[!htbp]
+\begin{figure}[!htbp]
   \centering
-  \caption{从零构建小型 GPT 模型涉及的关键知识点}
-  \label{tab:llm_key_points}
-  \renewcommand{\arraystretch}{1.2}
-  \small
-  \begin{tabular}{L{2.7cm}L{4.8cm}L{5.7cm}}
-    \toprule
-    环节 & 关键知识点 & 本项目对应内容 \\
-    \midrule
-    数据准备 & 语料选择、文本清洗、样本组织 & TinyStories 短故事语料 \\
-    文本表示 & 分词、词表、token id、词嵌入、位置嵌入 & 正则分词器与 MiniGPT 输入表示 \\
-    模型架构 & Decoder-only、因果注意力、前馈网络、残差连接 & 小参数量 MiniGPT \\
-    预训练 & next-token prediction、loss、perplexity & TinyStories 预训练实验 \\
-    微调 & 监督数据、任务适配、分类头、评价指标 & 故事结局倾向二分类 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+  \includegraphics[width=0.60\textwidth]{pic/激活函数.png}
+  \caption{激活函数}
+  \label{fig:transformer_activation}
+\end{figure}
+
+残差连接使子层输入可以直接传递到子层输出，避免深层网络在多次变
+换后过早丢失原始信息。同时，残差路径也为梯度反向传播提供了更直
+接的通道，有助于缓解深层模型训练困难。若将某个子层
+记为 $\mathcal{F}(\cdot)$，残差连接可简
+写为 $\mathbf{y}=\mathbf{x}+\mathcal{F}(\mathbf{x})$。因
+此，残差连接不是附加细节，而是 GPT 类模型能够稳定堆叠多层 Tra
+nsformer 模块的重要条件。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.60\textwidth]{pic/残差链接示意图.png}
+  \caption{残差连接示意图}
+  \label{fig:shortcut_connection}
+\end{figure}
+
+层归一化（LayerNorm）用于稳定每个 token 的隐藏表示，通常在特
+征维度上进行归一化，使不同层之间的数值分布更稳定。对某个隐藏向
+量 $\mathbf{x}$，层归一化可以写为：
+\begin{equation}
+\mathrm{LayerNorm}(\mathbf{x})
+=
+\boldsymbol{\gamma}
+\odot
+\frac{\mathbf{x}-\mu}{\sqrt{\sigma^2+\epsilon}}
++
+\boldsymbol{\beta}.
+\label{eq:layer_norm}
+\end{equation}
+其中，$\mu$ 和 $\sigma^2$ 分别表示该隐藏向量在特征维度上的
+均值和方差，$\boldsymbol{\gamma}$ 与 $\boldsymbol{\beta}$ 是
+可学习的缩放和平移参数。层归一化不改变序列长度，而是调整每个位置
+的隐藏向量，并通过可学习参数保留表达能力。层归一化的简单示意
+如图~\ref{fig:layer_norm}所示。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.60\textwidth]{pic/层归一化.png}
+  \caption{层归一化示意图}
+  \label{fig:layer_norm}
+\end{figure}
+
+在 Transformer 模块中，层归一化可以放在子层之前或之后。GPT 
+类实现中常见的一种形式是 Pre-LayerNorm，即先对输入隐藏状态
+进行层归一化，再送入注意力子层或前馈网络子层，最后与原输入进行
+残差相加。若第 $l$ 层输入为 $\mathbf{H}^{(l)}$，一种 Pre-L
+ayerNorm 结构可概括为：
+\begin{equation}
+\begin{aligned}
+\widetilde{\mathbf{H}}^{(l)}
+&=
+\mathbf{H}^{(l)}
++
+\mathrm{Attn}\!\left(\mathrm{LayerNorm}(\mathbf{H}^{(l)})\right),\\
+\mathbf{H}^{(l+1)}
+&=
+\widetilde{\mathbf{H}}^{(l)}
++
+\mathrm{FFN}\!\left(\mathrm{LayerNorm}(\widetilde{\mathbf{H}}^{(l)})\right).
+\end{aligned}
+\label{eq:pre_layer_norm_block}
+\end{equation}
+相比直接在子层输出之后归一化，Pre-LayerNorm 往往更有利于深层
+模型的稳定训练。
+
+\textbf{输出层与生成过程。} 经过多层 Transformer 模块后，序列中每个位
+置都会得到一个上下文相关的隐藏表示。最终层归一化用于进一步稳定输出表示，
+线性输出层则将隐藏表示映射到词表维度，得到每个候选 token 的预测分数。若
+最后一层隐藏表示为 $\mathbf{H}^{(N)}$，输出层可写
+为 $\mathbf{Z}=\mathbf{H}^{(N)}\mathbf{W}_{\mathrm{out}}$，其
+中 $\mathbf{Z}$ 的最后一维对应词表中每个 token 的预测分数。训练阶
+段，这些预测分数用于与目标 token 计算语言模型损失；生成阶段，模型
+通常取最后一个位置的预测分布来选择下一个 token，并将新 token 拼接
+回上下文继续生成。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.50\textwidth]{pic/单词续写示例.png}
+  \caption{单词续写示例}
+  \label{fig:text_generation}
+\end{figure}
+
+GPT 的自回归生成过程并不是一次性输出完整文本，而是每次根据当前上下文
+得到下一个 token 的概率分布。若当前上下文为 $x_{\leq t}$，最后一个
+位置的预测分数为 $\mathbf{z}_t$，则下一个 token 的概率分布可表
+示为 $P(x_{t+1}\mid x_{\leq t})=\mathrm{softmax}(\mathbf{z}_t)$。生
+成时通常从该分布中采样或选择下一个 token。新 token 被追加到上下文后，
+模型再重复前向计算，直到达到长度限制或生成终止标记。
+
+\subsubsection{关键配置}
+
+GPT 类模型的配置不是随意设置的，而是在模型表达能力、训练成本和硬件资源之间进行权衡。模型参数主要来自词嵌入层、注意力层、前馈网络和最终输出层。词表大小会显著影响词嵌入层和输出层参数量；注意力层中的 Query、Key、Value 投影和输出投影会带来参数开销；前馈网络由于包含升维和降维线性层，通常也占据较多参数。上下文长度决定模型最多能利用多长的历史信息，同时注意力计算开销会随序列长度增加而明显上升；嵌入维度影响 token 表示空间的容量；Transformer 层数影响模型抽象能力和训练成本；注意力头数影响模型从不同子空间捕捉关系的能力，但也需要与嵌入维度匹配。除此之外，Dropout、权重衰减等正则化方法有助于减少过拟合，批大小和学习率则会影响训练稳定性和收敛速度。具体配置需要根据数据规模、计算资源和实验目标综合确定，相关数值设置将在后文章节结合具体实验说明。
+
+\subsection{模型预训练机制}
+
+预训练是 GPT 类语言模型获得通用语言能力的核心阶段。与需要人工标签的监督学习不同，语言模型预训练通常直接利用无标签文本构造训练目标。对于自回归语言模型而言，文本序列本身就能提供监督信号：模型根据已有上下文预测下一个 token，并通过预测结果与真实下一个 token 之间的误差更新参数。因此，GPT 预训练可以看作一种自监督学习过程。
+
+\subsubsection{模型评估标准}
+
+在预训练阶段，最基本的评估指标是训练损失和验证损失。训练损失（training loss）是在训练集 batch 上计算得到的平均交叉熵损失，用于反映模型对训练语料的拟合程度；验证损失（validation loss）是在不参与参数更新的验证集上计算得到的损失，用于反映模型在未见文本上的泛化能力。二者的变化趋势可以帮助判断模型是否正常收敛。
+
+给定 token 序列 $x_1,x_2,\cdots,x_T$，GPT 类模型通过下一个 token 预测任务进行预训练，其语言建模目标可写为：
+\begin{equation}
+\begin{aligned}
+P(x_1,x_2,\cdots,x_T)
+&=\prod_{t=1}^{T}P(x_t\mid x_{<t}),\\
+\mathcal{L}_{\mathrm{LM}}
+&=-\frac{1}{T-1}\sum_{t=1}^{T-1}
+\log P(x_{t+1}\mid x_{\leq t}) .
+\end{aligned}
+\label{eq:pretraining_objective}
+\end{equation}
+其中，第一行表示自回归概率分解，第二行表示平均交叉熵损失。模型在每个位置输出词表维度的预测分数，经 softmax 后得到下一个 token 的概率分布，训练目标则是提高真实目标 token 的概率。
+
+训练损失和验证损失需要结合观察。如果训练损失和验证损失都持续下降，通常说明模型正在学习较稳定的语言规律；如果训练损失下降而验证损失不再下降甚至上升，则说明模型可能逐渐记住训练语料，出现过拟合。由此可见，验证损失并不是训练过程中的附加指标，而是模型选择和判断泛化能力的重要依据。
+
+语言模型中还常使用困惑度（perplexity）辅助评价模型效果。困惑度通常由语言模型损失指数变换得到：
+\[
+\mathrm{PPL}=\exp(\mathcal{L}_{\mathrm{LM}}).
+\]
+直观上，困惑度可以理解为模型预测下一个 token 时的平均不确定程度。困惑度越低，通常表示模型对真实下一个 token 的预测越稳定。需要注意的是，困惑度会受到分词方式和词表规模影响，因此不同 tokenizer 或不同词表设置下的数值不能简单横向比较。
+
+\subsubsection{预训练过程}
+
+模型预训练并不只是计算一次损失，而是一个按照 epoch 重复进行
+的迭代优化过程。每个 epoch 中，模型会遍历训练集中的多个 bat
+ch，通过前向传播、损失计算、反向传播和参数更新逐步调整模型
+参数，并定期在验证集上评估训练效果。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.50\textwidth]{pic/预训练流程.png}
+  \caption{预训练流程示意}
+  \label{fig:pretraining_process}
+\end{figure}
+
+\textbf{模型进入训练模式。} 在每个 epoch 开始时，模型通常会切换到训练模式，使 Dropout 等训练阶段才启用的机制正常工作。随后，数据加载器按 batch 提供输入序列和目标序列。输入序列用于送入模型，目标序列通常是输入序列整体右移一位后的 token 序列。
+
+\textbf{前向传播。} 对于一个 batch，模型接收形状通常为 $[\mathrm{batch\_size},\mathrm{context\_length}]$ 的 token id 张量。经过词嵌入、位置嵌入和多层 Transformer 模块后，模型在每个位置输出词表维度的预测分数。若词表大小为 $V$，则输出可以表示为 $[\mathrm{batch\_size},\mathrm{context\_length},V]$。
+
+\textbf{损失计算。} 模型输出的预测分数需要与目标 token 计算交叉熵损失。由于每个位置都要预测下一个 token，因此损失通常会在整个 batch 的所有有效位置上求平均。该损失值越小，说明模型越能给真实下一个 token 分配较高概率。
+
+\textbf{反向传播与参数更新。} 得到损失后，程序通过反向传播计算模型参数的梯度，再由优化器根据梯度更新参数。常见做法是在每个 batch 更新前清空上一轮梯度，完成损失反向传播后执行一次优化器更新。这样，模型会随着训练不断调整词嵌入、注意力层、前馈网络和输出层等参数。
+
+\textbf{验证集评估。} 训练过程中需要定期在验证集上计算损失。验证阶段通常关闭梯度计算，并将模型切换到评估模式，以避免 Dropout 等训练随机性影响评估结果。验证损失可以反映模型在未参与训练文本上的表现，是判断训练是否有效和是否过拟合的重要依据。
+
+\textbf{记录与模型选择。} 每轮或每隔一定步数记录训练损失、验证损失以及困惑度，有助于后续绘制曲线并分析收敛情况。若当前验证损失优于历史结果，通常会保存当前模型作为最优模型；训练结束时也会保存最后一轮模型，便于后续比较、继续训练或进行微调。
+
+\subsubsection{Decoding Strategies（解码策略）}
+
+预训练完成后，可以通过文本生成直观观察模型是否学到基本语言模式。生成时，模型根据给定 prompt 预测下一个 token，再将生成的 token 拼接回上下文中，重复这一过程直到达到长度限制或生成终止标记。
+
+最简单的解码方式是贪心解码，即每一步都选择概率最高的 token。这种方式结果较稳定，但容易生成重复或缺乏变化的文本。为了增加生成多样性，可以使用 temperature 对预测分数进行缩放：
+\[
+P_i=\mathrm{softmax}\left(\frac{z_i}{\tau}\right).
+\]
+其中，$\tau$ 为温度系数。较小的 $\tau$ 会使概率分布更尖锐，模型更倾向于选择高概率 token；较大的 $\tau$ 会使分布更平滑，生成结果更随机。此外，top-k 采样会把候选范围限制在概率最高的 $k$ 个 token 内，在保留一定随机性的同时减少明显不合理 token 被采样的可能性。
+
+\subsubsection{Loading and Saving Model（模型加载与保存）}
+
+由于语言模型预训练通常耗时较长，训练过程中需要保存模型权重和相关训练信息。常见保存内容包括模型参数、模型配置、词表文件、训练参数和评估指标等。保存最后一轮模型可以保留完整训练结果，保存验证损失最低的模型则便于后续选择泛化表现较好的版本。
+
+模型加载通常用于三类场景：一是继续中断的预训练过程；二是加载预训练模型进行文本生成测试；三是在预训练模型基础上进行下游任务微调。对于后续微调而言，除了加载模型权重，还需要保证 tokenizer 和词表与预训练阶段一致，否则相同文本可能被编码为不同 token id，导致模型输入表示不匹配。因此，模型保存与加载不仅是工程实现细节，也是保证预训练、生成和微调流程连续性的关键环节。
+
+\subsection{模型微调与任务适配}
+
+预训练阶段主要使 GPT 类模型学习通用语言模式，但实际应用往
+往具有明确的任务目标，例如文本分类、问答、摘要、指令响应等
+。因此，在预训练之后，还需要通过微调使模型适应具体任务。微
+调的基本思想是：在保留预训练模型已有语言表示能力的基础上
+，使用带标签数据或任务格式数据继续训练模型，使模型的输出
+形式和目标任务相匹配。本节主要介绍文本
+分类微调和指令跟随微调。
+
+\subsubsection{文本分类任务微调}
+
+文本分类任务要求模型根据输入文本判断其所属类别，例如情感分
+类、垃圾短信识别、主题分类等。与预训练阶段的下一个 token
+预测不同，文本分类任务的输出不是一段连续文本，而是一个离
+散类别。因此，分类微调需要在 GPT 主体模型之后增加任务相
+关的分类结构，使预训练语言模型能够从“生成式建模”适配到“
+类别判断”。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.60\textwidth]{pic/分类微调流程.png}
+  \caption{文本分类任务微调流程}
+  \label{fig:classification_finetuning}
+\end{figure}
+
+\textbf{数据集准备。} 文本分类微调首先需要构建带标签数据集。每条样本通常由两部分组成：一部分是输入文本，另一部分是人工标注或已有数据集中提供的类别标签。为了能够输入 GPT 模型，文本仍然需要使用与预训练阶段一致的分词器进行编码，转换为 token id 序列。由于不同文本长度可能不同，实际训练时通常需要进行截断或填充，使同一批次中的样本具有统一长度。对于填充位置，需要通过有效位置标记进行区分，避免其影响文本表示或损失计算。
+
+分类数据集还需要划分为训练集、验证集和测试集。训练集用于更新模型参数，验证集用于观察微调过程和选择模型，测试集用于最终评价模型在未见样本上的表现。若类别分布不均衡，仅使用准确率可能无法全面反映模型效果，因此通常还需要结合精确率、召回率、F1 值和混淆矩阵等指标进行分析。
+
+\textbf{模型设置。} GPT 主体模型输出的是每个 token 对应的隐藏状态，而文本分类任务需要对整段文本给出一个整体判断，因此需要将 token 级表示转换为文本级表示。常见做法包括使用最后一个有效 token 的隐藏状态、对所有有效 token 的隐藏状态进行平均池化，或采用最大池化等方式。最后一个 token 表示更接近自回归生成任务的习惯，但可能过度依赖序列末尾信息；平均池化能够综合整段文本的表示，更适合需要整体语义判断的短文本分类任务；最大池化则更强调局部显著特征。
+
+得到文本级表示后，需要在其后接入线性分类头，将隐藏表示映射为类别预测分数。设文本级表示为 $\mathbf{h}$，分类头参数为 $\mathbf{W}_c$ 和 $\mathbf{b}_c$，则类别预测分数可以写为 $\mathbf{z}=\mathbf{h}\mathbf{W}_c+\mathbf{b}_c$。经过 softmax 后，模型得到各类别的预测概率。若真实类别为 $y$，则分类交叉熵损失可表示为：
+\[
+\mathcal{L}_{\mathrm{cls}}=-\log p_y .
+\]
+该损失鼓励模型提高真实类别对应的预测概率，从而学习输入文本与类别标签之间的对应关系。
+
+在参数更新策略上，文本分类微调可以采用多种方式。一种做法是冻结预训练 GPT 主体，只训练新增分类头，这种方式训练成本较低，但任务适配能力有限；另一种做法是全参数微调，即 GPT 主体和分类头全部参与训练，适配能力更强，但训练开销更大，也更容易在小数据集上过拟合。实际选择时需要根据模型规模、数据量和算力条件进行权衡。
+
+\textbf{模型微调与使用。} 文本分类微调的训练过程与一般监督学习类似。每个 batch 中，模型先对输入文本进行前向传播，得到类别预测分数；然后与真实标签计算分类损失；接着通过反向传播计算梯度，并由优化器更新分类头以及参与训练的模型参数。训练过程中需要定期在验证集上评估模型表现，防止训练集损失下降但验证集效果变差。
+
+微调完成后，模型即可用于分类推理。对于一段新的输入文本，程序首先使用同一分词器进行编码，再送入微调后的模型，得到类别预测分数，最后选择概率最高的类别作为输出。与预训练阶段相比，分类微调后的模型不再只是生成下一个 token，而是能够面向具体监督任务输出明确类别。因此，文本分类微调常用于验证预训练模型是否能够迁移到下游任务中。
+
+\subsubsection{指令跟随微调}
+
+指令跟随微调是一类更接近实际大语言模型应用的微调方式。它的
+目标不是让模型输出固定类别，而是让模型根据自然语言指令生成
+符合要求的回答。例如，用户可以要求模型翻译句子、总结文本、
+回答问题或改写内容，模型需要理解指令意图，并生成相应响应。
+与文本分类微调相比，指令跟随微调仍然保持生成式输出形式，但
+训练数据需要按照“指令—输入—回答”的格式组织。
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.60\textwidth]{pic/指令微调流程.png}
+  \caption{指令跟随微调流程}  
+  \label{fig:instruction_finetuning}
+\end{figure}
+
+\textbf{数据集准备。} 指令微调数据通常由三部分组成：指令、输入和回答。指令用于说明任务要求，输入提供任务所需的具体内容，回答则是期望模型生成的目标文本。例如，一条样本可以包含“请总结下面这段文字”这样的指令、待总结的原文，以及对应的参考摘要。对于不需要额外输入的任务，也可以只包含指令和回答。
+
+为了便于训练，不同样本通常需要整理成统一模板。例如，可以
+将样本拼接为“Instruction + Input + Response”的形式，
+使模型在看到前面的指令和输入后，学习生成后面的回答。与普通预训练不同，指令微调更强调输入输出格式的一致性。如果模板设计混乱，模型可能难以学习到指令和回答之间的对应关系。
+
+由于指令样本长度不一，训练时同样需要进行分词、截断、填充和批量组织。对于填充部分，应避免其参与损失计算。对于指令和输入部分，某些实现也会选择不计算损失，而只对回答部分计算损失，使模型更集中地学习如何生成目标响应。
+
+\textbf{微调大语言模型。} 指令跟随微调本质上仍然可以使用自回归语言建模目标。模型接收由指令、输入和回答拼接而成的序列，并学习在给定前文条件下预测后续 token。不同之处在于，训练目标不再是普通文本续写，而是在特定任务说明下生成符合要求的回答。
+
+若一条样本被组织为：
+“Instruction + Input + Response”
+则模型需要根据指令和输入部分生成回答部分。实际训练中，可以对不需要学习的 token 位置设置忽略标记，使损失主要作用在回答 token 上。这样做可以避免模型把大量训练能力浪费在重复输入提示格式上，而是更关注如何生成符合指令要求的输出。
+
+指令微调的参数更新方式可以是全参数微调，也可以是参数高效微调。全参数微调会更新模型全部参数，适配能力较强，但训练成本高；参数高效方法通常只更新少量新增参数或低秩适配模块，适合大模型和有限算力环境。无论采用哪种方式，都需要保证微调阶段使用的分词器、词表和模型结构与预训练阶段保持一致，否则模型输入表示会出现不匹配。
+
+\textbf{评估大语言模型。} 指令跟随微调的评估比文本分类更复杂。分类任务通常有明确标签，可以直接计算准确率、F1 值等指标；而指令回答往往不存在唯一标准答案，即使两个回答内容不同，也可能都满足任务要求。因此，指令微调模型的评估通常需要结合自动指标和人工判断。
+
+对于摘要、翻译等任务，可以使用与参考答案的重合度指标进行初步评价；对于开放式问答、写作和对话任务，则更关注回答是否正确、完整、符合指令、语言是否流畅以及是否存在事实错误。实际应用中，也可以通过人工评分或更强模型辅助评价的方式比较不同模型输出质量。由于评价成本较高，指令跟随微调通常比文本分类微调更复杂，也更依赖高质量数据和合理的评估标准。
+
+总体来看，文本分类微调更适合用来验证预训练模型的基础任务适配能力，而指令跟随微调更接近实际大语言模型助手的训练方式。前者输出形式简单、指标明确，后者任务形式灵活、应用范围更广。本文后续实验选择文本分类任务作为监督微调示例，指令跟随微调则可作为进一步扩展方向。
+
+
 
 \section{小型 GPT 模型设计与实现}
 
@@ -453,13 +805,10 @@ $[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$。其中，最�
 
 为了保证模型只能根据历史信息预测下一个 token，代码中构造了上三角因果 mask，用于屏蔽
 当前位置之后的未来 token。该 mask 通过 \texttt{register\_buffer} 注册为 buffer，因此会随
-模型一起移动到 CPU 或 GPU，但不会作为可训练参数更新。因果注意力的核心计算可概括为：
-\begin{equation}
-\mathrm{Attention}(Q,K,V)=
-\mathrm{softmax}\left(\frac{QK^{\mathrm{T}}+M}{\sqrt{d_k}}\right)V ,
-\label{eq:minigpt_causal_attention}
-\end{equation}
-其中，$M$ 表示因果遮罩矩阵。通过该机制，模型在训练时无法利用未来 token，从而与
+模型一起移动到 CPU 或 GPU，但不会作为可训练参数更新。随后，程序按照第二章
+式~\ref{eq:causal_attention} 所示的缩放点积注意力计算注意力分数，经过 softmax 得到注
+意力权重后，对 Value 进行加权求和。最后，多个注意力头的结果被重新拼接，并经过输出投
+影得到注意力子层输出。通过该机制，模型在训练时无法利用未来 token，从而与
 next-token prediction 的任务目标保持一致。
 
 \subsubsection{前馈网络与 Transformer 模块}
@@ -526,6 +875,12 @@ Dropout 被用于降低小数据训练中的过拟合风险。
 型输入输出形状，确认输入 $[\mathrm{batch\_size},\mathrm{seq\_len}]$ 后能够得到
 $[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$ 的 logits，从而验证模型结构
 搭建正确。
+
+从训练角度看，MiniGPT 前向传播输出的 logits 可直接与右移一位的目标 token 序列计算交叉
+熵损失，用于预训练阶段的参数更新；从推理角度看，模型可以根据当前序列最后一个位置的
+logits 选择下一个 token，并将其追加到上下文中继续生成。因此，该模型结构同时支持预训练
+阶段的 next-token prediction 训练和推理阶段的自回归文本生成。由于模型层数、嵌入维度和
+上下文长度均控制在较小规模，模型能够在普通单机环境下完成训练和推理验证。
 
 综上，本章完成了小型 GPT 模型架构的搭建。该模型保留了词嵌入、位置嵌入、
 因果多头自注意力、前馈网络、残差连接和 LayerNorm 等核心机制，同时通过较
@@ -628,9 +983,23 @@ $[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$ 的 logits，从
 
 \subsection{预训练策略与程序实现}
 
-预训练任务采用 next-token prediction。MiniGPT 对每个 batch 的 logits，程序将 logits 与
+预训练任务采用 next-token prediction。MiniGPT 对每个 batch 输出 logits，程序将 logits 与
 右移一位后的目标 token 序列计算交叉熵损失，从而同时优化序列中所有位置的下一个 token
 预测误差。优化器采用 AdamW，并设置 weight decay 以提供一定正则化效果。
+
+在程序实现中，预训练样本由自定义数据集类进行封装。分词后的长 token id 序列按照固定上
+下文长度和步长切分为多个样本，每个样本由输入序列和右移一位的目标序列组成。随后，
+\texttt{DataLoader} 将若干样本组成 batch 送入模型。对于每个 batch，模型输出形状为
+$[\mathrm{batch\_size},\mathrm{seq\_len},\mathrm{vocab\_size}]$ 的 logits，再与目标 token
+序列计算交叉熵损失。这一过程对应第二章所述的“输入序列—目标序列—批量训练”的
+next-token prediction 预训练机制。
+
+在输入模型之前，每个 batch 中的 token id 首先经过 MiniGPT 的词嵌入层转换为连续向量，
+同时根据序列位置生成位置编号并加入位置嵌入。词嵌入用于提供 token 内容信息，位置嵌入
+用于提供序列顺序信息，二者相加后作为 Transformer 模块的初始输入表示。随后，模型经过
+多层因果 Transformer 模块，输出词表维度的 logits，用于计算 next-token prediction 损失。
+这样，预训练程序完整包含了“文本分词—token id 编码—词嵌入与位置编码—Transformer 建
+模—loss 计算”的流程。
 
 训练过程中，程序定期在训练集和验证集上评估 loss 与 perplexity。Perplexity 由 loss 的指
 数变换得到，可以理解为模型预测下一个 token 时的平均不确定性。训练脚本保存验证集 loss
@@ -717,7 +1086,12 @@ epoch、第 $19700$ 个 step，最终训练 loss 和最终验证 loss 相差较�
 但在该数据规模下没有出现特别严重的训练集与验证集分离现象。
 
 \textbf{生成样例与效果分析。} 预训练完成后，使用提示词 \texttt{Once upon a time} 进行自
-回归生成。下面截取一段生成样例：
+回归生成。生成测试阶段，模型每次根据当前上下文得到最后一个位置的 logits，并据此选择
+下一个 token，再将新 token 拼接回输入序列继续生成。程序支持贪心选择和采样生成两类方
+式；在采样生成中，可以通过 temperature 调整概率分布的平滑程度，并通过 top-k 限制候选
+token 范围。为减少小模型生成时常见的重复现象，程序中还保留了 repetition penalty 和
+no-repeat n-gram 等约束策略。本文生成样例主要用于直观观察预训练模型是否学到基本语言
+模式，不将其作为唯一评价依据。下面截取一段生成样例：
 \begin{quote}
 \small
 Prompt: Once upon a time
@@ -771,7 +1145,14 @@ They look at least and Ben were happy. They looked for his lesson that they had 
 
 微调模型在预训练 MiniGPT 主体后增加一个线性分类头，而不改变原有 GPT 主体结构。输入文本依次经过词嵌入、位置嵌入、Transformer 模块和最终归一化层后，得到每个 token 的隐藏状态。由于分类任务需要得到整段文本的表示，因此需要对 token 级隐藏状态进行聚合。常见方式包括使用最后一个有效 token 的隐藏状态、对所有有效 token 进行平均池化，或采用最大池化等。最后一个 token 表示更依赖序列末尾信息，对于自回归生成较自然；但故事结局倾向判断往往依赖整段结尾中的多个词句，而不仅是最后一个 token。因此，本文采用平均池化（mean pooling）获得文本级表示，并在池化时排除 padding 位置。该表示随后输入线性分类头，用于输出 \texttt{negative} 和 \texttt{positive} 两个类别的 logits。训练目标使用交叉熵损失。
 
-在初始化方式上，微调程序加载预训练阶段验证集表现最优的 MiniGPT 参数，并复用预训练阶段的分词器和词表，从而保证预训练与微调阶段的 token 编码方式一致。参数更新策略上，本文最终采用全参数微调（full fine-tuning），即 MiniGPT 主体与分类头全部参与更新。这样做的原因是本项目中的 MiniGPT 规模较小，仅包含 2 层 Transformer 模块，若只训练分类头或最后一层，模型对下游分类任务的适配能力会受到限制。
+在初始化方式上，微调程序加载预训练阶段验证集表现最优的 MiniGPT 参数，并复用预训练阶段的分词器和词表，从而保证预训练与微调阶段的 token 编码方式一致。在参数更新策略上，微调程序保留了多种模式：\texttt{head\_only} 只训练新增分类头，适合快速验证分类头是否有效；\texttt{last\_block} 训练最后一个 Transformer 模块和分类头，是训练成本与适配能力之间的折中；\texttt{full} 则使 MiniGPT 主体和分类头全部参与更新，任务适配能力更强，但训练开销和过拟合风险也更高。考虑到本项目模型参数量较小，且微调任务需要充分适配故事结局倾向分类，主实验最终采用 \texttt{full} 全参数微调方案。
+
+从程序流程看，微调阶段首先读取带标签样本，并按照训练集、验证集和测试集进行划分；随后
+加载预训练阶段保存的模型参数和词表文件，保证微调阶段的 token 编码方式与预训练阶段一
+致；接着构建分类数据集和 \texttt{DataLoader}，将每条文本编码为 input ids、attention mask
+和标签。模型前向传播得到类别 logits 后，与真实标签计算交叉熵损失，并通过优化器更新参
+数。训练过程中根据验证集表现保存最佳分类模型，最后在测试集上输出预测结果、分类报告
+和错误样本。通过这一流程，预训练 MiniGPT 被适配到故事结局倾向二分类任务中。
 
 训练使用 AdamW 优化器，学习率为 $5\times 10^{-5}$，权重衰减为 0.01，batch size 为 8，训练轮数上限为 60。训练过程中根据验证集表现保存最佳模型，并在最终测试时使用该最佳模型，而不是简单使用最后一轮模型。程序记录训练损失、验证损失、accuracy、分类报告、混淆矩阵以及错误样本，用于后续分析模型在不同类别上的表现。表~\ref{tab:finetune_params} 汇总了主实验参数设置。
 
@@ -805,14 +1186,14 @@ They look at least and Ben were happy. They looked for his lesson that they had 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.86\textwidth]{../my_tiny_gpt/outputs/final_result/finetune_loss.png}
+  \includegraphics[width=0.86\textwidth]{pic/finetune_loss.png}
   \caption{微调训练 loss 曲线}
   \label{fig:finetune_loss}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.86\textwidth]{../my_tiny_gpt/outputs/final_result/finetune_accuracy.png}
+  \includegraphics[width=0.86\textwidth]{pic/finetune_accuracy.png}
   \caption{微调 accuracy 曲线}
   \label{fig:finetune_acc}
 \end{figure}

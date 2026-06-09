@@ -2,31 +2,41 @@
 \contentsline {subsection}{\numberline {1.1}项目背景与意义}{1}{}%
 \contentsline {subsection}{\numberline {1.2}项目任务与技术路线}{1}{}%
 \contentsline {section}{\numberline {第2章}大语言模型相关理论基础与关键知识点}{3}{}%
-\contentsline {subsection}{\numberline {2.1}GPT 类语言模型基本原理}{3}{}%
-\contentsline {subsection}{\numberline {2.2}训练数据准备与文本表示}{4}{}%
-\contentsline {subsection}{\numberline {2.3}Transformer 核心结构与小模型配置}{5}{}%
-\contentsline {subsection}{\numberline {2.4}预训练与微调机制}{6}{}%
-\contentsline {section}{\numberline {第3章}小型 GPT 模型设计与实现}{7}{}%
-\contentsline {subsection}{\numberline {3.1}模型总体结构}{7}{}%
-\contentsline {subsection}{\numberline {3.2}核心模块设计}{8}{}%
-\contentsline {subsubsection}{\numberline {3.2.1}MiniGPTConfig 配置类}{8}{}%
-\contentsline {subsubsection}{\numberline {3.2.2}因果多头自注意力模块}{8}{}%
-\contentsline {subsubsection}{\numberline {3.2.3}前馈网络与 Transformer 模块}{9}{}%
-\contentsline {subsubsection}{\numberline {3.2.4}MiniGPT 模型主体}{9}{}%
-\contentsline {subsection}{\numberline {3.3}模型参数配置与低算力适配}{10}{}%
-\contentsline {section}{\numberline {第4章}训练数据准备与模型预训练实验}{11}{}%
-\contentsline {subsection}{\numberline {4.1}TinyStories 数据集与文本预处理}{11}{}%
-\contentsline {subsection}{\numberline {4.2}分词编码与训练样本构造}{12}{}%
-\contentsline {subsection}{\numberline {4.3}预训练策略与程序实现}{13}{}%
-\contentsline {subsection}{\numberline {4.4}预训练结果与生成效果分析}{14}{}%
-\contentsline {section}{\numberline {第5章}微调实验与任务适应}{16}{}%
-\contentsline {subsection}{\numberline {5.1}微调任务与监督数据构建}{16}{}%
-\contentsline {subsection}{\numberline {5.2}微调策略与程序设计}{18}{}%
-\contentsline {subsection}{\numberline {5.3}微调结果与任务效果分析}{19}{}%
-\contentsline {subsection}{\numberline {5.4}本章小结}{22}{}%
-\contentsline {section}{\numberline {第6章}总结与体会}{23}{}%
-\contentsline {section}{参考文献与开源资源说明}{25}{}%
-\contentsline {section}{\numberline {A}项目文件结构}{25}{}%
-\contentsline {section}{\numberline {B}主要运行命令}{26}{}%
-\contentsline {section}{\numberline {C}主要输出文件}{27}{}%
-\contentsline {section}{\numberline {D}实验结果截图清单}{28}{}%
+\contentsline {subsection}{\numberline {2.1}从零构建语言模型的基本流程}{3}{}%
+\contentsline {subsection}{\numberline {2.2}训练数据准备与文本表示}{3}{}%
+\contentsline {subsection}{\numberline {2.3}GPT 类模型架构与关键配置}{7}{}%
+\contentsline {subsubsection}{\numberline {2.3.1}Decoder-only Transformer 架构。}{7}{}%
+\contentsline {subsubsection}{\numberline {2.3.2}模型内部模块}{7}{}%
+\contentsline {subsubsection}{\numberline {2.3.3}关键配置}{13}{}%
+\contentsline {subsection}{\numberline {2.4}模型预训练机制}{14}{}%
+\contentsline {subsubsection}{\numberline {2.4.1}模型评估标准}{14}{}%
+\contentsline {subsubsection}{\numberline {2.4.2}预训练过程}{15}{}%
+\contentsline {subsubsection}{\numberline {2.4.3}Decoding Strategies（解码策略）}{17}{}%
+\contentsline {subsubsection}{\numberline {2.4.4}Loading and Saving Model（模型加载与保存）}{17}{}%
+\contentsline {subsection}{\numberline {2.5}模型微调与任务适配}{18}{}%
+\contentsline {subsubsection}{\numberline {2.5.1}文本分类任务微调}{18}{}%
+\contentsline {subsubsection}{\numberline {2.5.2}指令跟随微调}{20}{}%
+\contentsline {section}{\numberline {第3章}小型 GPT 模型设计与实现}{22}{}%
+\contentsline {subsection}{\numberline {3.1}模型总体结构}{22}{}%
+\contentsline {subsection}{\numberline {3.2}核心模块设计}{23}{}%
+\contentsline {subsubsection}{\numberline {3.2.1}MiniGPTConfig 配置类}{23}{}%
+\contentsline {subsubsection}{\numberline {3.2.2}因果多头自注意力模块}{24}{}%
+\contentsline {subsubsection}{\numberline {3.2.3}前馈网络与 Transformer 模块}{24}{}%
+\contentsline {subsubsection}{\numberline {3.2.4}MiniGPT 模型主体}{25}{}%
+\contentsline {subsection}{\numberline {3.3}模型参数配置与低算力适配}{25}{}%
+\contentsline {section}{\numberline {第4章}训练数据准备与模型预训练实验}{26}{}%
+\contentsline {subsection}{\numberline {4.1}TinyStories 数据集与文本预处理}{26}{}%
+\contentsline {subsection}{\numberline {4.2}分词编码与训练样本构造}{28}{}%
+\contentsline {subsection}{\numberline {4.3}预训练策略与程序实现}{29}{}%
+\contentsline {subsection}{\numberline {4.4}预训练结果与生成效果分析}{30}{}%
+\contentsline {section}{\numberline {第5章}微调实验与任务适应}{32}{}%
+\contentsline {subsection}{\numberline {5.1}微调任务与监督数据构建}{32}{}%
+\contentsline {subsection}{\numberline {5.2}微调策略与程序设计}{34}{}%
+\contentsline {subsection}{\numberline {5.3}微调结果与任务效果分析}{35}{}%
+\contentsline {subsection}{\numberline {5.4}本章小结}{38}{}%
+\contentsline {section}{\numberline {第6章}总结与体会}{39}{}%
+\contentsline {section}{参考文献与开源资源说明}{41}{}%
+\contentsline {section}{\numberline {A}项目文件结构}{41}{}%
+\contentsline {section}{\numberline {B}主要运行命令}{42}{}%
+\contentsline {section}{\numberline {C}主要输出文件}{43}{}%
+\contentsline {section}{\numberline {D}实验结果截图清单}{44}{}%

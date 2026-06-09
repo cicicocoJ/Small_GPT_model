@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.2)  9 JUN 2026 11:01
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.2)  9 JUN 2026 19:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -849,13 +849,13 @@ e=dflt;"
 e=dflt;embolden=2;"
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
 
- (./report.toc)
+ (./report.toc [1
+
+])
 \tf@toc=\write3
 \openout3 = `report.toc'.
 
- [1
-
-]
+ [2]
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -880,8 +880,10 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [2]
-File: pic/structure_of_llm.jpg Graphic file (type bmp)
-<pic/structure_of_llm.jpg>
+File: pic/procedure.png Graphic file (type bmp)
+<pic/procedure.png>
+File: pic/文本处理2.png Graphic file (type bmp)
+<pic/文本处理2.png>
 
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
@@ -893,10 +895,16 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 
 [3]
 
-Package xeCJK Warning: Unknown CJK family `\CJKttdefault' is being ignored.
-(xeCJK)                
-(xeCJK)                Try to use `\setCJKmonofont[<...>]{<...>}' to define
-(xeCJK)                it.
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[4]
+File: pic/分词.png Graphic file (type bmp)
+<pic/分词.png>
 
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
@@ -906,7 +914,31 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
-[4]
+[5]
+File: pic/滑动窗口.png Graphic file (type bmp)
+<pic/滑动窗口.png>
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[6]
+File: pic/structure_of_llm.jpg Graphic file (type bmp)
+<pic/structure_of_llm.jpg>
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[7]
 File: pic/structure_of_transformer.jpg Graphic file (type bmp)
 <pic/structure_of_transformer.jpg>
 
@@ -918,56 +950,10 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
-[5]
-Overfull \hbox (25.76819pt too wide) in paragraph at lines 408--414
-\TU/SimSun(0)/m/n/12 序 列，|  形 状 为 $\OT1/cmr/m/n/12 [[]\OML/cmm/m/it/12 ; []\OT1
-/cmr/m/n/12 ]$\TU/SimSun(0)/m/n/12 ；|  模 型 输 出 为 \TU/TimesNewRoman(0)/m/n/12 lo
-gits\TU/SimSun(0)/m/n/12 ，|  形 状 为 $\OT1/cmr/m/n/12 [[]\OML/cmm/m/it/12 ; []; [
-]\OT1/cmr/m/n/12 ]$\TU/SimSun(0)/m/n/12 。|
- []
-
-
-Package fancyhdr Warning: \headheight is too small (26.0pt): 
-(fancyhdr)                Make it at least 26.03632pt, for example:
-(fancyhdr)                \setlength{\headheight}{26.03632pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
-
-[6]
-Overfull \hbox (27.7429pt too wide) in paragraph at lines 415--419
-[]\TU/SimSun(0)/m/n/12 从 整 体 结 构 看，| \TU/lmtt/m/n/12 MiniGPT \TU/SimSun(0)/m/n/
-12 包 含 词 嵌 入、|  位 置 嵌 入、|  嵌 入 \TU/TimesNewRoman(0)/m/n/12 Dropout\TU/SimSun(0)
-/m/n/12 、|  多 层 \TU/lmtt/m/n/12 TransformerBlock\TU/SimSun(0)/m/n/12 、|
- []
-
-File: pic/minigpt模型结构图.png Graphic file (type bmp)
-<pic/minigpt模型结构图.png>
-
-Overfull \hbox (0.925pt too wide) in paragraph at lines 436--441
-[]\TU/lmtt/m/n/12 MiniGPTConfig \TU/SimSun(0)/m/n/12 用 于 集 中 管 理 模 型 结 构 参 数，| 
- 包 括 \TU/lmtt/m/n/12 vocab_size\TU/SimSun(0)/m/n/12 、| \TU/lmtt/m/n/12 context_
-length\TU/SimSun(0)/m/n/12 、|
- []
-
-
-Package fancyhdr Warning: \headheight is too small (26.0pt): 
-(fancyhdr)                Make it at least 26.03632pt, for example:
-(fancyhdr)                \setlength{\headheight}{26.03632pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
-
-[7]
-
-Package fancyhdr Warning: \headheight is too small (26.0pt): 
-(fancyhdr)                Make it at least 26.03632pt, for example:
-(fancyhdr)                \setlength{\headheight}{26.03632pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
-
 [8]
+File: pic/注意力机制示意图.png Graphic file (type bmp)
+<pic/注意力机制示意图.png>
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -977,11 +963,8 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [9]
-Overfull \hbox (45.36194pt too wide) in paragraph at lines 524--529
-\TU/SimSun(0)/m/n/12 试 模 型 输 入 输 出 形 状，|  确 认 输 入 $\OT1/cmr/m/n/12 [[]\OML/cmm/
-m/it/12 ; []\OT1/cmr/m/n/12 ]$ \TU/SimSun(0)/m/n/12 后 能 够 得 到 $\OT1/cmr/m/n/12 
-[[]\OML/cmm/m/it/12 ; []; []\OT1/cmr/m/n/12 ]$
- []
+File: pic/激活函数.png Graphic file (type bmp)
+<pic/激活函数.png>
 
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
@@ -992,6 +975,9 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [10]
+File: pic/残差链接示意图.png Graphic file (type bmp)
+<pic/残差链接示意图.png>
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1001,11 +987,10 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [11]
-Overfull \hbox (25.86797pt too wide) in paragraph at lines 584--588
-[]\TU/SimSun(0)/b/n/12 分 词 器 选 择。|  \TU/SimSun(0)/m/n/12 本 项 目 的 \TU/lmtt/m/n/1
-2 tiny_tokenizer.py \TU/SimSun(0)/m/n/12 中 保 留 了 两 种 分 词 器 实 现：| \TU/lmtt/m/n/1
-2 GPT2Tokenizer
- []
+File: pic/层归一化.png Graphic file (type bmp)
+<pic/层归一化.png>
+File: pic/单词续写示例.png Graphic file (type bmp)
+<pic/单词续写示例.png>
 
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
@@ -1025,9 +1010,6 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [13]
-File: pic/pretrain_loss.png Graphic file (type bmp)
-<pic/pretrain_loss.png>
-
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1037,6 +1019,9 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [14]
+File: pic/预训练流程.png Graphic file (type bmp)
+<pic/预训练流程.png>
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1046,6 +1031,12 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [15]
+Overfull \hbox (2.71509pt too wide) in paragraph at lines 646--647
+\TU/SimSun(0)/m/n/12 表 维 度 的 预 测 分 数。|  若 词 表 大 小 为 $\OML/cmm/m/it/12 V$\TU/Sim
+Sun(0)/m/n/12 ，|  则 输 出 可 以 表 示 为 $\OT1/cmr/m/n/12 [[]\OML/cmm/m/it/12 ; []; V\
+OT1/cmr/m/n/12 ]$\TU/SimSun(0)/m/n/12 。| 
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1055,17 +1046,6 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [16]
-Overfull \hbox (1.62378pt too wide) in paragraph at lines 746--747
-[]\TU/SimSun(0)/m/n/12 该 任 务 的 输 入 是 一 段 \TU/TimesNewRoman(0)/m/n/12 TinyStorie
-s \TU/SimSun(0)/m/n/12 风 格 的 英 文 故 事 结 尾 文 本，|  输 出 类 别 为 \TU/lmtt/m/n/12 posit
-ive
- []
-
-
-Overfull \hbox (19.54703pt too wide) in paragraph at lines 756--768
- [][] 
- []
-
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1075,6 +1055,9 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [17]
+File: pic/分类微调流程.png Graphic file (type bmp)
+<pic/分类微调流程.png>
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1084,10 +1067,6 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [18]
-File: ../my_tiny_gpt/outputs/final_result/finetune_loss.png Graphic file (type 
-bmp)
-<../my_tiny_gpt/outputs/final_result/finetune_loss.png>
-
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1097,9 +1076,8 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [19]
-File: ../my_tiny_gpt/outputs/final_result/finetune_accuracy.png Graphic file (t
-ype bmp)
-<../my_tiny_gpt/outputs/final_result/finetune_accuracy.png>
+File: pic/指令微调流程.png Graphic file (type bmp)
+<pic/指令微调流程.png>
 
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
@@ -1110,8 +1088,33 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [20]
-Overfull \hbox (25.85657pt too wide) in paragraph at lines 849--861
- [][] 
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[21]
+Overfull \hbox (25.76819pt too wide) in paragraph at lines 760--766
+\TU/SimSun(0)/m/n/12 序 列，|  形 状 为 $\OT1/cmr/m/n/12 [[]\OML/cmm/m/it/12 ; []\OT1
+/cmr/m/n/12 ]$\TU/SimSun(0)/m/n/12 ；|  模 型 输 出 为 \TU/TimesNewRoman(0)/m/n/12 lo
+gits\TU/SimSun(0)/m/n/12 ，|  形 状 为 $\OT1/cmr/m/n/12 [[]\OML/cmm/m/it/12 ; []; [
+]\OT1/cmr/m/n/12 ]$\TU/SimSun(0)/m/n/12 。|
+ []
+
+
+Package xeCJK Warning: Unknown CJK family `\CJKttdefault' is being ignored.
+(xeCJK)                
+(xeCJK)                Try to use `\setCJKmonofont[<...>]{<...>}' to define
+(xeCJK)                it.
+
+
+Overfull \hbox (27.7429pt too wide) in paragraph at lines 767--771
+[]\TU/SimSun(0)/m/n/12 从 整 体 结 构 看，| \TU/lmtt/m/n/12 MiniGPT \TU/SimSun(0)/m/n/
+12 包 含 词 嵌 入、|  位 置 嵌 入、|  嵌 入 \TU/TimesNewRoman(0)/m/n/12 Dropout\TU/SimSun(0)
+/m/n/12 、|  多 层 \TU/lmtt/m/n/12 TransformerBlock\TU/SimSun(0)/m/n/12 、|
  []
 
 
@@ -1122,16 +1125,16 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
-[21]
-
-Package fancyhdr Warning: \headheight is too small (26.0pt): 
-(fancyhdr)                Make it at least 26.03632pt, for example:
-(fancyhdr)                \setlength{\headheight}{26.03632pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
-
 [22]
+File: pic/minigpt模型结构图.png Graphic file (type bmp)
+<pic/minigpt模型结构图.png>
+
+Overfull \hbox (0.925pt too wide) in paragraph at lines 788--793
+[]\TU/lmtt/m/n/12 MiniGPTConfig \TU/SimSun(0)/m/n/12 用 于 集 中 管 理 模 型 结 构 参 数，| 
+ 包 括 \TU/lmtt/m/n/12 vocab_size\TU/SimSun(0)/m/n/12 、| \TU/lmtt/m/n/12 context_
+length\TU/SimSun(0)/m/n/12 、|
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1150,18 +1153,12 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [24]
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Overfull \hbox (45.36194pt too wide) in paragraph at lines 873--878
+\TU/SimSun(0)/m/n/12 试 模 型 输 入 输 出 形 状，|  确 认 输 入 $\OT1/cmr/m/n/12 [[]\OML/cmm/
+m/it/12 ; []\OT1/cmr/m/n/12 ]$ \TU/SimSun(0)/m/n/12 后 能 够 得 到 $\OT1/cmr/m/n/12 
+[[]\OML/cmm/m/it/12 ; []; []\OT1/cmr/m/n/12 ]$
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1171,46 +1168,6 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [25]
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
-Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
-Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1220,6 +1177,12 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
 [26]
+Overfull \hbox (25.86797pt too wide) in paragraph at lines 933--937
+[]\TU/SimSun(0)/b/n/12 分 词 器 选 择。|  \TU/SimSun(0)/m/n/12 本 项 目 的 \TU/lmtt/m/n/1
+2 tiny_tokenizer.py \TU/SimSun(0)/m/n/12 中 保 留 了 两 种 分 词 器 实 现：| \TU/lmtt/m/n/1
+2 GPT2Tokenizer
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (26.0pt): 
 (fancyhdr)                Make it at least 26.03632pt, for example:
@@ -1237,19 +1200,244 @@ Package fancyhdr Warning: \headheight is too small (26.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
 
-[28] (./report.aux)
+[28]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[29]
+File: pic/pretrain_loss.png Graphic file (type bmp)
+<pic/pretrain_loss.png>
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[30]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[31]
+Overfull \hbox (1.62378pt too wide) in paragraph at lines 1107--1108
+[]\TU/SimSun(0)/m/n/12 该 任 务 的 输 入 是 一 段 \TU/TimesNewRoman(0)/m/n/12 TinyStorie
+s \TU/SimSun(0)/m/n/12 风 格 的 英 文 故 事 结 尾 文 本，|  输 出 类 别 为 \TU/lmtt/m/n/12 posit
+ive
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[32]
+Overfull \hbox (19.54703pt too wide) in paragraph at lines 1117--1129
+ [][] 
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[33]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[34]
+File: ../my_tiny_gpt/outputs/final_result/finetune_loss.png Graphic file (type 
+bmp)
+<../my_tiny_gpt/outputs/final_result/finetune_loss.png>
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[35]
+File: ../my_tiny_gpt/outputs/final_result/finetune_accuracy.png Graphic file (t
+ype bmp)
+<../my_tiny_gpt/outputs/final_result/finetune_accuracy.png>
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[36]
+Overfull \hbox (25.85657pt too wide) in paragraph at lines 1210--1222
+ [][] 
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[37]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[38]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[39]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[40]
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[41]
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no │ (U+2502) in font [lmmono12-regular]:!
+Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ├ (U+251C) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no └ (U+2514) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+Missing character: There is no ─ (U+2500) in font [lmmono12-regular]:!
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[42]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[43]
+
+Package fancyhdr Warning: \headheight is too small (26.0pt): 
+(fancyhdr)                Make it at least 26.03632pt, for example:
+(fancyhdr)                \setlength{\headheight}{26.03632pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.03632pt}.
+
+[44] (./report.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/07/14>
  ***********
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 13106 strings out of 474773
- 329756 string characters out of 5745715
- 1942842 words of memory out of 5000000
- 35019 multiletter control sequences out of 15000+600000
- 577040 words of font info for 175 fonts, out of 8000000 for 9000
+ 13315 strings out of 474773
+ 336571 string characters out of 5745715
+ 1940842 words of memory out of 5000000
+ 35209 multiletter control sequences out of 15000+600000
+ 579804 words of font info for 184 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  93i,12n,97p,1195b,1047s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on report.pdf (30 pages).
+Output written on report.pdf (47 pages).

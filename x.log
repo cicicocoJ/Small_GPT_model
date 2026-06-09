@@ -1,8 +1,8 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.2)  9 JUN 2026 01:47
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.2)  9 JUN 2026 13:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**u2.tex
+**report.tex
 
 (d:/download professional/what is this/texlive/2024/texmf-dist/tex/latex/tools/
 x.tex
@@ -20,11 +20,11 @@ and deduce the truth by order and method.
  ) 
 Here is how much of TeX's memory you used:
  17 strings out of 474773
- 507 string characters out of 5745715
+ 511 string characters out of 5745715
  1917842 words of memory out of 5000000
  22269 multiletter control sequences out of 15000+600000
  558069 words of font info for 36 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 11i,0n,13p,86b,8s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 11i,0n,13p,90b,8s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 No pages of output.
